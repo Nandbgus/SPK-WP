@@ -1,7 +1,5 @@
 <?php
-
 include '../tools/connection.php';
-
 
 if (isset($_POST['update'])) {
 
@@ -9,16 +7,30 @@ if (isset($_POST['update'])) {
     $kriKode = $_POST['kriKode'];
     $kriNama = $_POST['kriNama'];
     $kriKategori = $_POST['kriKategori'];
-    $kriBobot = $_POST['kriBobot'];
+    $kriBobotInput = floatval($_POST['kriBobot']);
 
-    $query = $conn->query("UPDATE ta_kriteria SET kriteria_id='$kriId', kriteria_kode = '$kriKode', kriteria_nama = '$kriNama', kriteria_kategori = '$kriKategori', kriteria_bobot = '$kriBobot' WHERE kriteria_id='$kriId'");
-
-    if ($query == True) {
-        echo "<script>
-                alert('Data Berhasil Disimpan');
-                window.location='kriteriaView.php'
-                </script>";
+    // NORMALISASI
+    if ($kriBobotInput > 1) {
+        $kriBobot = $kriBobotInput / 100;
     } else {
-        die('MySQL error : ' . mysqli_errno($conn));
+        $kriBobot = $kriBobotInput;
+    }
+
+    $query = $conn->query(
+        "UPDATE ta_kriteria SET
+            kriteria_kode='$kriKode',
+            kriteria_nama='$kriNama',
+            kriteria_kategori='$kriKategori',
+            kriteria_bobot='$kriBobot'
+         WHERE kriteria_id='$kriId'"
+    );
+
+    if ($query) {
+        echo "<script>
+                alert('Data Berhasil Diupdate');
+                window.location='kriteriaView.php'
+              </script>";
+    } else {
+        die('MySQL error : ' . mysqli_error($conn));
     }
 }
