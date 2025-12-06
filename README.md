@@ -114,7 +114,7 @@ Semua input menggunakan modal untuk tampilan yang lebih rapi.
 Akun default:
 
 ```
-Username: ADM01
+Username: admin
 Password: admin
 ```
 
