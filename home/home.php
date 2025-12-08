@@ -14,7 +14,7 @@
                 <div class="col-lg-1"></div>
                 <div class="col-lg-10 shadow py-3">
                     <!-- judul -->
-                    <p class="text-center fw-bold">Rekomendasi Kenaikan Jabatan Pegawai Negeri Sipil </p>
+                    <p class="text-center fw-bold">Rekomendasi Kenaikan Jabatan Pegawai Negeri Sipil Using WP </p>
                     <hr>
                     <!-- gambar -->
                     <div class="gambar bg-light bg-gradient">
