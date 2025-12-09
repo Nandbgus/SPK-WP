@@ -1,4 +1,7 @@
-<?php include '../blade/header.php'; ?>
+<?php 
+    $page = 'home';
+    include '../blade/header.php'; 
+?>
 
 <!DOCTYPE html>
 <html lang="id">
