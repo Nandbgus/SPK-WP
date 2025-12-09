@@ -1,204 +1,259 @@
 <?php
-// koneksi
 include '../tools/connection.php';
-// header
 include '../blade/header.php';
 ?>
 
-<div class="container">
-    <div class="card">
-        <div class="card-header bg-info">
-            <!-- judul sistem -->
-            <?php include '../blade/namaProgram.php'; ?>
-        </div>
-        <!-- nav -->
-        <?php include '../blade/nav.php' ?>
-        <!-- body -->
-        <div class="card-body">
-            <div class="row">
-                <div class="col-lg-1"></div>
-                <div class="col-lg-10 shadow py-3">
-                    <!-- judul -->
-                    <p class="text-center fw-bold">Data Sub-Kriteria</p>
-                    <hr>
-                    <!-- tabel disini -->
-                    <div class="row">
-                        <!-- <div class="col-1"></div> -->
-                        <div class="col">
-                            <!-- button trigger modal tambah -->
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-1">
-                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">
-                                    Add
-                                </button>
-                            </div>
-                            <table class="table table-striped table-bordered">
-                                <thead>
-                                    <tr class="table-info">
-                                        <th>No</th>
-                                        <th>Nama Kriteria</th>
-                                        <th>Kode Sub-Kriteria</th>
-                                        <th>Keterangan Sub-Kriteria</th>
-                                        <th>Bobot Sub-Kriteria</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    // ambil semua data dari ta_subkriteria dimana  kriteria_kode ta_subkriteria = kriteria_kode ta_kriteria
-                                    $data = $conn->query("SELECT * FROM ta_subkriteria INNER JOIN ta_kriteria ON ta_subkriteria.kriteria_kode = ta_kriteria.kriteria_kode");
-                                    $no = 1;
-                                    while ($subKriteria = $data->fetch_assoc()) {
-                                    ?>
-                                        <tr>
-                                            <td><?= $no++; ?></td>
-                                            <td><?= $subKriteria['kriteria_nama']; ?></td>
-                                            <td><?= $subKriteria['subkriteria_kode'] ?></td>
-                                            <td><?= $subKriteria['subkriteria_keterangan'] ?></td>
-                                            <td><?= $subKriteria['subkriteria_bobot'] ?></td>
-                                            <td><a href="" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalEdit<?= $subKriteria['subkriteria_id'] ?>">Edit</a> <a href="subkriteriaDelete.php?id=<?= $subKriteria['subkriteria_id']; ?>" class="btn btn-outline-danger" onclick=" return confirm('Hapus data ini ?')">Delete</a></td>
-                                        </tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- <div class="col-1"></div> -->
-                    </div>
-                </div>
-                <div class="col-lg-1"></div>
-            </div>
-        </div>
-    </div>
-</div>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Sub-Kriteria</title>
 
-<!-- Modal ADD -->
-<div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <!-- Bootstrap & DataTables -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 0;
+    }
+
+    .main-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+      width: 95%;
+      max-width: 1150px;
+      color: #fff;
+      padding: 25px;
+    }
+
+    h3 {
+      font-weight: 600;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .table thead {
+      background-color: #0dcaf0;
+      color: #fff;
+      text-align: center;
+    }
+
+    .btn { border-radius: 8px; }
+    .modal-content { border-radius: 12px; }
+    .form-label { font-weight: 500; }
+
+    .dataTables_filter input {
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      padding: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="main-card">
+    <div class="card-header bg-transparent mb-3">
+      <?php include '../blade/namaProgram.php'; ?>
+    </div>
+
+    <?php include '../blade/nav.php'; ?>
+
+    <div class="card-body">
+      <h3>Data Sub-Kriteria</h3>
+
+      <div class="d-flex justify-content-end mb-2">
+        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAdd">
+          + Tambah Sub-Kriteria
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table id="tableSubKriteria" class="table table-striped table-hover align-middle text-center">
+          <thead class="table-info">
+            <tr>
+              <th>No</th>
+              <th>Kriteria</th>
+              <th>Kode Sub-Kriteria</th>
+              <th>Keterangan</th>
+              <th>Bobot</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+            $data = $conn->query("SELECT * FROM ta_subkriteria 
+                                  INNER JOIN ta_kriteria 
+                                  ON ta_subkriteria.kriteria_kode = ta_kriteria.kriteria_kode");
+            $no = 1;
+            while ($row = $data->fetch_assoc()) { ?>
+              <tr>
+                <td><?= $no++; ?></td>
+                <td><?= $row['kriteria_nama']; ?></td>
+                <td><?= $row['subkriteria_kode']; ?></td>
+                <td><?= $row['subkriteria_keterangan']; ?></td>
+                <td><?= $row['subkriteria_bobot']; ?></td>
+                <td>
+                  <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEdit<?= $row['subkriteria_id'] ?>">Edit</button>
+                  <a href="subkriteriaDelete.php?id=<?= $row['subkriteria_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus data ini?')">Hapus</a>
+                </td>
+              </tr>
+            <?php } ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tambah -->
+  <div class="modal fade" id="modalAdd" tabindex="-1">
     <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-info text-white">
+          <h5 class="modal-title">Tambah Data Sub-Kriteria</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post" action="subkriteriaAdd.php">
+            <?php
+            $q = $conn->query("SELECT * FROM ta_subkriteria ORDER BY subkriteria_id DESC LIMIT 1");
+            $kode = 'S01';
+            if (mysqli_num_rows($q) > 0) {
+              $row = $q->fetch_assoc();
+              $next = (int)$row['subkriteria_id'] + 1;
+              $kode = ($next < 10) ? 'S0' . $next : 'S' . $next;
+            }
+            ?>
+            <div class="mb-3">
+              <label class="form-label">Kode Sub-Kriteria</label>
+              <input type="text" class="form-control" name="subkriKode" value="<?= $kode ?>" readonly>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Kriteria</label>
+              <select class="form-select" name="kriKode" required>
+                <option value="" disabled selected>Pilih Kriteria...</option>
+                <?php
+                $kri = $conn->query("SELECT * FROM ta_kriteria");
+                while ($kr = $kri->fetch_assoc()) { ?>
+                  <option value="<?= $kr['kriteria_kode']; ?>">
+                    <?= $kr['kriteria_kode'] . ' - ' . $kr['kriteria_nama'] . ' (' . $kr['kriteria_kategori'] . ')'; ?>
+                  </option>
+                <?php } ?>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Keterangan</label>
+              <input type="text" class="form-control" name="subkriKeterangan" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Bobot</label>
+              <input type="number" step="0.01" class="form-control" name="subkriBobot" required>
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary" name="save">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Edit -->
+  <?php
+  $data = $conn->query("SELECT * FROM ta_subkriteria ORDER BY subkriteria_id");
+  while ($row = $data->fetch_assoc()) { ?>
+    <div class="modal fade" id="modalEdit<?= $row['subkriteria_id'] ?>" tabindex="-1">
+      <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Tambah Data Sub-Kriteria</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Form disini -->
-                <form method="post" action="subkriteriaAdd.php">
-                    <div class="row mb-3">
-                        <label for="subkriKode" class="col-sm-3 col-form-label">Kode</label>
-                        <div class="col-sm-9">
-                            <!-- buat kode sub-kriteria -->
-                            <?php
-                            $data = $conn->query("SELECT * FROM ta_subkriteria ORDER BY subkriteria_id DESC LIMIT 1");
-                            $total_row = mysqli_num_rows($data);
-                            if ($total_row == 0) { ?>
-                                <input type="text" class="form-control" id="subkriKode" name="subkriKode" value="<?= 'S01' ?>" required>
-                            <?php } ?>
-                            <?php while ($subkriteria = $data->fetch_assoc()) { ?>
-                                <?php
-                                $row_terakhir = $subkriteria['subkriteria_id'];
-                                if ($row_terakhir < 9) { ?>
-                                    <input type="text" class="form-control" id="subkriKode" name="subkriKode" value="<?= 'S0' . ((int)$subkriteria['subkriteria_id'] + 1); ?>" required>
-                                <?php } elseif ($row_terakhir >= 9) { ?>
-                                    <input type="text" class="form-control" id="subkriKode" name="subkriKode" value="<?= 'S' . ((int)$subkriteria['subkriteria_id'] + 1); ?>" required>
-                            <?php }
-                            } ?>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="kriKode" class="col-sm-3 col-form-label">Kriteria</label>
-                        <div class="col-sm-9">
-                            <select class="form-select" name="kriKode">
-                                <option selected>Pilih Kriteria...</option>
-                                <?php
-                                $data = $conn->query("SELECT * FROM ta_kriteria");
-                                while ($kriteria = $data->fetch_assoc()) { ?>
-                                    <option value="<?= $kriteria['kriteria_kode']; ?>"><?= $kriteria['kriteria_kode'] . ' - ' . $kriteria['kriteria_nama'] . ' (' . $kriteria['kriteria_kategori'] . ')'; ?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
+          <div class="modal-header bg-warning text-dark">
+            <h5 class="modal-title">Edit Data Sub-Kriteria</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form method="post" action="subkriteriaEdit.php">
+              <input type="hidden" name="subkriId" value="<?= $row['subkriteria_id'] ?>">
 
-                    <div class="row mb-3">
-                        <label for="subkriKeterangan" class="col-sm-3 col-form-label">Keterangan</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="subkriKeterangan" name="subkriKeterangan" required>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="subkriBobot" class="col-sm-3 col-form-label">Bobot</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="subkriKeterangan" name="subkriBobot" required>
-                        </div>
-                    </div>
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <button type="submit" class="btn btn-outline-primary" name="save">Save</button>
-                    </div>
-                </form>
-            </div>
+              <div class="mb-3">
+                <label class="form-label">Kode Sub-Kriteria</label>
+                <input type="text" class="form-control" name="subkriKode" value="<?= $row['subkriteria_kode'] ?>" readonly>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Kriteria</label>
+                <select class="form-select" name="kriKode">
+                  <?php
+                  $k = $conn->query("SELECT * FROM ta_kriteria ORDER BY kriteria_kode");
+                  while ($kr = $k->fetch_assoc()) { ?>
+                    <option value="<?= $kr['kriteria_kode']; ?>" <?= ($kr['kriteria_kode'] == $row['kriteria_kode']) ? 'selected' : ''; ?>>
+                      <?= $kr['kriteria_kode'] . ' - ' . $kr['kriteria_nama'] . ' (' . $kr['kriteria_kategori'] . ')'; ?>
+                    </option>
+                  <?php } ?>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Keterangan</label>
+                <input type="text" class="form-control" name="subkriKeterangan" value="<?= $row['subkriteria_keterangan'] ?>">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Bobot</label>
+                <input type="number" step="0.01" class="form-control" name="subkriBobot" value="<?= $row['subkriteria_bobot'] ?>">
+              </div>
+
+              <div class="text-end">
+                <button type="submit" class="btn btn-warning text-white" name="update">Update</button>
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
-</div>
-</div>
+  <?php } ?>
 
-<!-- Modal Edit -->
-<?php
-$data = $conn->query("SELECT * FROM ta_subkriteria ORDER by subkriteria_id");
-while ($subkriteria = mysqli_fetch_array($data)) { ?>
-    <div class="modal fade" id="modalEdit<?= $subkriteria['subkriteria_id'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Data Sub-Kriteria</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Form disini -->
-                    <form method="post" action="subkriteriaEdit.php">
-                        <input type="hidden" class="form-control" id="subkriId" name="subkriId" value="<?= $subkriteria['subkriteria_id'] ?>">
+  <?php include '../blade/footer.php'; ?>
 
-                        <div class="row mb-3">
-                            <label for="kriKode" class="col-sm-3 col-form-label">Kode</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="subkriKode" name="subkriKode" value="<?= $subkriteria['subkriteria_kode'] ?>">
-                            </div>
-                        </div>
+  <!-- JS -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-                        <div class="row mb-3">
-                            <label for="kriKode" class="col-sm-3 col-form-label">Kriteria</label>
-                            <div class="col-sm-9">
-                                <select class="form-select d-inline" name="kriKode" id="kriKode">
-                                    <?php
-                                    $sql = $conn->query("SELECT * FROM ta_kriteria ORDER BY kriteria_kode");
-                                    while ($kriteria = mysqli_fetch_array($sql)) { ?>
-                                        <option value="<?= $kriteria['kriteria_kode']; ?>" <?php if ($kriteria['kriteria_kode'] == $subkriteria['kriteria_kode']) {
-                                                                                                echo 'selected';
-                                                                                            } ?>><?= $kriteria['kriteria_kode'] . ' - ' . $kriteria['kriteria_nama'] . ' (' . $kriteria['kriteria_kategori'] . ')'; ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label for="subkriKeterangan" class="col-sm-3 col-form-label">Keterangan</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="subkriKeterangan" name="subkriKeterangan" value="<?= $subkriteria['subkriteria_keterangan'] ?>">
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label for="subkriBobot" class="col-sm-3 col-form-label">Bobot</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="subkriBobot" name="subkriBobot" value="<?= $subkriteria['subkriteria_bobot'] ?>">
-                            </div>
-                        </div>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-outline-warning" name="update">Update</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-<?php } ?>
-
-<!-- footer -->
-<?php include '../blade/footer.php' ?>
+  <script>
+    $(document).ready(function() {
+      $('#tableSubKriteria').DataTable({
+        language: {
+          lengthMenu: "Tampilkan _MENU_ data per halaman",
+          zeroRecords: "Data tidak ditemukan",
+          info: "Menampilkan _PAGE_ dari _PAGES_ halaman",
+          infoEmpty: "Tidak ada data tersedia",
+          infoFiltered: "(difilter dari total _MAX_ data)",
+          search: "Cari:",
+          paginate: {
+            first: "Awal",
+            last: "Akhir",
+            next: "›",
+            previous: "‹"
+          }
+        },
+        pageLength: 5,
+        lengthMenu: [5, 10, 20, 50]
+      });
+    });
+  </script>
+</body>
+</html>
