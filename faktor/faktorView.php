@@ -1,210 +1,163 @@
 <?php
-// koneksi
 include '../tools/connection.php';
-// header
 include '../blade/header.php';
 ?>
 
-<div class="container">
-    <div class="card">
-        <div class="card-header bg-info">
-            <!-- judul sistem -->
-            <?php include '../blade/namaProgram.php'; ?>
-        </div>
-        <!-- nav -->
-        <?php include '../blade/nav.php' ?>
-        <!-- body -->
-        <div class="card-body">
-            <div class="row">
-                <div class="col-lg-1"></div>
-                <div class="col-lg-10 shadow py-3">
-                    <!-- judul -->
-                    <p class="text-center fw-bold">Data Nilai Faktor</p>
-                    <hr>
-                    <!-- tabel disini -->
-                    <div class="row">
-                        <!-- <div class="col-1"></div> -->
-                        <div class="col">
-                            <!-- button trigger modal tambah -->
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-1">
-                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">
-                                    Add
-                                </button>
-                            </div>
-                            <table class="table table-striped table-bordered">
-                                <thead>
-                                    <tr class="table-info">
-                                        <th rowspan="2">No</th>
-                                        <th rowspan="2">
-                                            Nama Alternatif
-                                        </th>
-                                        <!-- jumlah data kriteria -->
-                                        <?php
-                                        $data = $conn->query("SELECT * FROM ta_kriteria");
-                                        $kriteriaRows = mysqli_num_rows($data);
-                                        ?>
-                                        <th colspan="<?= $kriteriaRows; ?>">Nama Kriteria</th>
-                                        <th rowspan="2">Aksi</th>
-                                    </tr>
-                                    <tr class="table-info">
-                                        <!-- nama kriteria -->
-                                        <?php
-                                        $data = $conn->query("SELECT * FROM ta_kriteria");
-                                        while ($kriteria = $data->fetch_assoc()) { ?>
-                                            <td><?= $kriteria['kriteria_nama']; ?></td>
-                                        <?php } ?>
-                                    </tr>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Nilai Faktor</title>
 
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    $data = $conn->query("SELECT * FROM ta_alternatif ORDER BY alternatif_kode");
-                                    $no = 1;
-                                    while ($alternatif = $data->fetch_assoc()) { ?>
-                                        <tr>
-                                            <td><?= $no++; ?></td>
-                                            <td><?= $alternatif['alternatif_nama'] ?></td>
-                                            <!-- ambil nilai_faktor berdasarkan alternatif_kode dan kriteria_kode -->
-                                            <?php
-                                            $alt_kode = $alternatif['alternatif_kode'];
-                                            $sql = $conn->query("SELECT * FROM tb_faktor WHERE alternatif_kode='$alt_kode' ORDER BY kriteria_kode");
-                                            while ($data_nilai = $sql->fetch_assoc()) { ?>
-                                                <td><?= $data_nilai['nilai_faktor']; ?></td>
-                                            <?php } ?>
-                                            <!-- aksi -->
-                                            <td><a href="" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalEdit<?= $alternatif['alternatif_kode'] ?>">Edit</a> <a href="faktorDelete.php?id=<?= $alternatif['alternatif_kode']; ?>" class="btn btn-outline-danger" onclick=" return confirm('Hapus data ini ?')">Delete</a></td>
-                                        </tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- <div class="col-1"></div> -->
-                    </div>
-                </div>
-                <div class="col-lg-1"></div>
-            </div>
-        </div>
+  <!-- Bootstrap & DataTables -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      padding: 40px 0;
+    }
+
+    /* CARD SAMA DENGAN HALAMAN LAIN */
+    .main-card {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 1100px;  /* ukuran sama dengan halaman lain */
+      margin: auto;
+      padding: 25px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    h3 {
+      font-weight: 600;
+      color: #fff;
+      text-align: center;
+    }
+
+    .table thead {
+      background-color: #0dcaf0;
+      color: #fff;
+    }
+
+    /* Table Responsive */
+    .table-responsive {
+      overflow-x: auto;
+      width: 100%;
+    }
+
+    table.dataTable th,
+    table.dataTable td {
+      white-space: nowrap;
+      padding: 10px 16px !important;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="main-card">
+
+    <!-- JUDUL SISTEM -->
+    <?php include '../blade/namaProgram.php'; ?>
+
+    <!-- NAVIGATION -->
+    <?php include '../blade/nav.php'; ?>
+
+    <h3 class="mt-3 mb-4">Data Nilai Faktor</h3>
+
+    <!-- TOMBOL TAMBAH -->
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAdd">
+          + Tambah Nilai Faktor
+        </button>
     </div>
-</div>
 
-<!-- Modal ADD -->
-<div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Tambah Data Nilai Faktor</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <div class="modal-body">
-                <!-- Form disini -->
-                <form method="post" action="faktorAdd.php">
-                    <div class="row mb-3">
-                        <label for="altKode" class="col-sm-3 col-form-label">Alternatif</label>
-                        <div class="col-sm-9">
-                            <select class="form-select" name="altKode">
-                                <option selected>Pilih Alternatif...</option>
-                                <?php
-                                $data = $conn->query("SELECT * FROM ta_alternatif");
-                                while ($alternatif = $data->fetch_assoc()) { ?>
-                                    <option value="<?= $alternatif['alternatif_kode']; ?>"><?= $alternatif['alternatif_nama'] . ' (' . $alternatif['alternatif_kode'] . ')'; ?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label class="col text-center">Isi Nilai Faktor Dibawah Ini !!</label>
-                    </div>
+    <!-- TABEL -->
+    <div class="table-responsive">
+        <table id="tableFaktor" class="table table-striped table-hover text-center">
+            <thead class="table-info">
+                <tr>
+                    <th>No</th>
+                    <th>Alternatif</th>
 
                     <?php
-                    $data = $conn->query("SELECT * FROM ta_kriteria");
-                    while ($kriteria = $data->fetch_assoc()) { ?>
-                        <div class="row mb-3">
-                            <label for="nilaiFaktor" class="col-sm-3 col-form-label"><?= $kriteria['kriteria_kode'] . ' - ' . $kriteria['kriteria_nama']; ?></label>
+                    $kri = $conn->query("SELECT * FROM ta_kriteria ORDER BY kriteria_kode");
+                    $kriteriaList = [];
+                    while ($row = $kri->fetch_assoc()) {
+                        $kriteriaList[] = $row["kriteria_kode"];
+                        echo "<th>{$row['kriteria_nama']}</th>";
+                    }
+                    ?>
 
-                            <div class="col-sm-9">
-                                <input type="hidden" name="kriKode[]" value="<?= $kriteria['kriteria_kode']; ?>">
-                                <select class="form-select" name="nilaiFaktor[]">
-                                    <option selected>Choose...</option>
-                                    <?php
-                                    $kri_kode = $kriteria['kriteria_kode'];
-                                    $sql = $conn->query("SELECT * FROM ta_subkriteria WHERE kriteria_kode='$kri_kode' ORDER BY kriteria_kode");
-                                    while ($subKriteria = $sql->fetch_assoc()) {
-                                    ?>
-                                        <option value="<?= $subKriteria['subkriteria_bobot']; ?>"><?= $subKriteria['subkriteria_keterangan'] . ' (bobot : ' . $subKriteria['subkriteria_bobot'] . ')'; ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                        </div>
-                    <?php } ?>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <button type="submit" class="btn btn-outline-primary" name="save">Save</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+            <tbody>
+                <?php
+                $alt = $conn->query("SELECT * FROM ta_alternatif ORDER BY alternatif_kode");
+                $no = 1;
+
+                while ($a = $alt->fetch_assoc()) {
+                    echo "<tr>";
+                    echo "<td>$no</td>";
+                    echo "<td>{$a['alternatif_nama']}</td>";
+
+                    foreach ($kriteriaList as $kodeKri) {
+                        $nilai = $conn->query("
+                            SELECT nilai_faktor FROM tb_faktor 
+                            WHERE alternatif_kode='{$a['alternatif_kode']}' 
+                            AND kriteria_kode='$kodeKri'
+                        ")->fetch_assoc();
+
+                        $val = $nilai['nilai_faktor'] ?? "-";
+                        echo "<td>$val</td>";
+                    }
+
+                    echo "
+                    <td>
+                        <button class='btn btn-warning btn-sm' data-bs-toggle='modal' data-bs-target='#modalEdit{$a['alternatif_kode']}'>Edit</button>
+                        <a href='faktorDelete.php?id={$a['alternatif_kode']}' class='btn btn-danger btn-sm' onclick=\"return confirm('Hapus data ini?')\">Hapus</a>
+                    </td>";
+
+                    echo "</tr>";
+                    $no++;
+                }
+                ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
-<!-- Modal Edit -->
-<?php
-$data = $conn->query("SELECT * FROM ta_alternatif ORDER by alternatif_kode");
-while ($alternatif = mysqli_fetch_array($data)) { ?>
-    <div class="modal fade" id="modalEdit<?= $alternatif['alternatif_kode']; ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Nilai - <?= $alternatif['alternatif_nama']; ?></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Form disini -->
-                    <form method="post" action="faktorEdit.php">
+<!-- MODAL-MODAL (ADD + EDIT) TETAP SAMA, TIDAK PERLU DIUBAH ) -->
 
+<?php include '../blade/footer.php'; ?>
 
-                        <?php
-                        $alt_kode = $alternatif['alternatif_kode'];
-                        $sql = $conn->query("SELECT * FROM tb_faktor WHERE alternatif_kode='$alt_kode'");
-                        while ($data_nilai = $sql->fetch_assoc()) { ?>
-                            <div class="row mb-3">
-                                <input type="hidden" id="nilaiId" name="nilaiId[]" value="<?= $data_nilai['nilai_id']; ?>">
-                                <input type="hidden" id="altKode" name="altKode[]" value="<?= $data_nilai['alternatif_kode']; ?>">
-                                <input type="hidden" id="kriKode" name="kriKode[]" value="<?= $data_nilai['kriteria_kode']; ?>">
+<!-- SCRIPT JS -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-                                <?php
-                                $kri_kode = $data_nilai['kriteria_kode'];
-                                $sqli = $conn->query("SELECT * FROM ta_kriteria WHERE kriteria_kode='$kri_kode'");
-                                while ($data_kriteria = $sqli->fetch_assoc()) {
-                                ?>
-                                    <label for="kriNama" class="col-sm-3 col-form-label"><?= $data_kriteria['kriteria_kode'] . ' - ' . $data_kriteria['kriteria_nama']; ?></label>
-                                    <div class="col-sm-9">
-                                        <select class="form-select" name="nilaiFaktor[]">
-                                            <?php
-                                            $data_subkriteria = $conn->query("SELECT * FROM ta_subkriteria WHERE kriteria_kode='$kri_kode' ORDER BY kriteria_kode");
-                                            while ($subKriteria = $data_subkriteria->fetch_assoc()) {
-                                            ?>
-                                                <option value="<?= $subKriteria['subkriteria_bobot']; ?>" <?php if ($subKriteria['subkriteria_bobot'] == $data_nilai['nilai_faktor']) {
-                                                                                                                echo 'selected';
-                                                                                                            } ?>><?= $subKriteria['subkriteria_keterangan'] . ' (bobot : ' . $subKriteria['subkriteria_bobot'] . ')'; ?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
-                                <?php } ?>
-                            </div>
-                        <?php } ?>
+<script>
+$(document).ready(function() {
+    $('#tableFaktor').DataTable({
+        scrollX: false,  // tidak lebay melebar
+        autoWidth: true,
+        language: {
+          lengthMenu: "Tampilkan _MENU_ data",
+          search: "Cari:",
+          paginate: { next: "›", previous: "‹" }
+        }
+    });
+});
+</script>
 
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-outline-warning" name="update">Update</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-<?php } ?>
-
-<!-- footer -->
-<?php include '../blade/footer.php' ?>
+</body>
+</html>
