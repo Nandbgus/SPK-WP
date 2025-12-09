@@ -79,6 +79,68 @@ include '../blade/header.php';
 
     <div class="card-body">
       <h3>Data Kriteria</h3>
+    <!-- ====== Panduan Penggunaan (Metode WP) ====== -->
+<div class="mb-3">
+  <div class="alert alert-info shadow-sm" role="alert">
+    <div class="d-flex align-items-start gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-info-circle mt-1" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.176-.304-.51zM8 4.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2"/>
+      </svg>
+      <div>
+        <strong>Panduan Metode Weighted Product (WP):</strong><br>
+        Halaman ini digunakan untuk mengelola <em>kriteria</em> yang akan digunakan dalam perhitungan keputusan dengan metode <strong>Weighted Product</strong>.
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion" id="panduanKriteria">
+    <!-- 1. Fungsi Kriteria -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingFungsi">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFungsi" aria-expanded="true" aria-controls="collapseFungsi">
+          Fungsi & Komponen Data Kriteria
+        </button>
+      </h2>
+      <div id="collapseFungsi" class="accordion-collapse collapse show" aria-labelledby="headingFungsi" data-bs-parent="#panduanKriteria">
+        <div class="accordion-body">
+          <ul>
+            <li><strong>Kode</strong> → identitas unik tiap kriteria (otomatis: C01, C02, dst).</li>
+            <li><strong>Nama</strong> → aspek penilaian ( Harga, Kualitas, Kecepatan).</li>
+            <li><strong>Kategori</strong>:
+              <ul>
+                <li><em>Benefit</em> — nilai besar lebih diinginkan (contoh: Kualitas).</li>
+                <li><em>Cost</em> — nilai kecil lebih diinginkan (contoh: Harga).</li>
+              </ul>
+            </li>
+            <li><strong>Bobot</strong> → tingkat kepentingan relatif kriteria, dalam bentuk desimal (contoh: 0.3, 0.25, 0.2).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Langkah Pemakaian -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingSteps">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSteps" aria-expanded="false" aria-controls="collapseSteps">
+          Langkah Penggunaan Dashboard Kriteria
+        </button>
+      </h2>
+      <div id="collapseSteps" class="accordion-collapse collapse" aria-labelledby="headingSteps" data-bs-parent="#panduanKriteria">
+        <div class="accordion-body">
+          <ol>
+            <li>Klik tombol <strong>+ Tambah Kriteria</strong> untuk membuat data baru.</li>
+            <li>Isi nama, kategori (<em>benefit</em> atau <em>cost</em>), dan bobot.</li>
+            <li>Pastikan total seluruh bobot = <strong>1.00</strong> agar hasil WP valid.</li>
+            <li>Gunakan tombol <strong>Edit</strong> atau <strong>Hapus</strong> untuk memperbarui data.</li>
+            <li>Setelah semua kriteria diatur, data ini akan digunakan pada tahap perhitungan alternatif.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ====== /Panduan Penggunaan (Metode WP) ====== -->
 
       <div class="d-flex justify-content-end mb-2">
         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAdd">
