@@ -67,6 +67,11 @@
         <?php include '../blade/namaProgram.php'; ?>
         <?php include '../blade/nav.php'; ?>
 
+        <div class="mb-3">
+            <a href="../ranking/ranking.php" class="btn btn-warning me-2">Lihat Ranking</a>
+            <a href="../ranking/riwayat.php" class="btn btn-secondary">Riwayat Perhitungan</a>
+        </div>
+
         <h3>Rekomendasi Kenaikan Jabatan PNS (Metode WP)</h3>
 
         <div class="gambar mb-4">
