@@ -11,10 +11,10 @@ include '../blade/header.php';
     <div class="col-lg-10">
 
         <!-- kop surat -->
-        <p class="text-center fw-bold m-0">PEMERINTAH KOTA DEPOK</p>
+        <p class="text-center fw-bold m-0">PEMERINTAH KOTA KEDIRI</p>
         <p class="text-center fw-bold m-0">SEKRETARIAT DAERAH</p>
-        <p class="text-center m-0">Jl. Margonda Raya No. 54 Kota Depok Telepon (0711) 11111</p>
-        <p class="text-center m-0">Email : humasdepok@gmail.com</p>
+        <p class="text-center m-0">Jl. Brawijaya. 54 Kota Kediri Telepon (0711) 22334</p>
+        <p class="text-center m-0">Email : humaskotakediri@gmail.com</p>
         <hr>
 
         <!-- isi surat -->
@@ -271,8 +271,8 @@ include '../blade/header.php';
             <div class="col-1"></div>
             <div class="col-10">
                 <!-- <p class="text-center fw-bold">Tabel Ranking</p> -->
-                <table class="table table-bordered">
-                    <thead>
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="table-primary text-center">
                         <tr>
                             <th>Ranking</th>
                             <th>Kode Alternatif</th>
@@ -306,12 +306,12 @@ include '../blade/header.php';
             <div class="col-1"></div>
         </div>
 
-        <p class="text-justify">Demikian surat ini kami sampaikan atas perhatian bapak / ibu / saudara, kami ucapkan terimakasih</p>
+        <p class="text-justify">Demikian surat ini kami sampaikan atas perhatian Bapak / Ibu / Saudara, kami ucapkan terimakasih</p>
 
         <br><br>
 
-        <p style=" text-align: right;">Depok, <?php echo date("d/m/Y") ?></p><br><br>
-        <p style=" text-align: right;">Sekretariat Daerah Kota Depok</p>
+        <p style=" text-align: right;">Kediri, <?php echo date("d/m/Y") ?></p><br><br>
+        <p style=" text-align: right;">Sekretariat Daerah Kota Kediri</p>
 
     </div>
     <div class="col-lg-1"></div>
