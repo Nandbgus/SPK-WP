@@ -319,6 +319,20 @@ include '../blade/header.php';
                                     <?php
                                     $ranking = 1;
                                     rsort($ranks);
+                                    // AMBIL JUARA 1
+                                    $top = $ranks[0];
+
+                                    $kode  = $top['alternatifKode'];
+                                    $nama  = $top['alternatifNama'];
+                                    $nilai = $top['nilaiWP'];
+
+                                    // SIMPAN KE DATABASE
+                                    $conn->query("
+                                        INSERT INTO riwayat_perhitungan (tanggal, alternatif_tertinggi, nilai_tertinggi)
+                                        VALUES (NOW(), '$nama', '$nilai')
+                                    ");
+
+                            
                                     foreach ($ranks as $r) {
                                     ?>
                                         <tr>
