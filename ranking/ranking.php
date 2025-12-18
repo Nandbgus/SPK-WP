@@ -11,18 +11,23 @@ include '../blade/header.php';
 function getBobotROC($totalKriteria)
 {
     $bobotROC = [];
+    // Loop untuk setiap ranking (k)
     for ($k = 1; $k <= $totalKriteria; $k++) {
         $sum = 0;
+        // Rumus ROC: Penjumlahan pecahan harmoni
         for ($i = $k; $i <= $totalKriteria; $i++) {
             $sum += (1 / $i);
         }
+        // Hasil dibagi total kriteria
         $bobotROC[$k] = $sum / $totalKriteria;
     }
     return $bobotROC;
 }
 
-// Ambil data kriteria
-$q_kriteria = $conn->query("SELECT * FROM ta_kriteria ORDER BY kriteria_id ASC");
+// Ambil data kriteria dari database
+// PERBAIKAN: Diurutkan berdasarkan 'kriteria_bobot' (Ranking) ASC
+$q_kriteria = $conn->query("SELECT * FROM ta_kriteria ORDER BY kriteria_bobot ASC");
+
 $data_kriteria = [];
 while ($row = $q_kriteria->fetch_assoc()) {
     $data_kriteria[] = $row;
@@ -32,7 +37,7 @@ while ($row = $q_kriteria->fetch_assoc()) {
 $jumlahKriteria = count($data_kriteria);
 $nilaiROC = getBobotROC($jumlahKriteria);
 
-// Masukkan Nilai ROC ke array
+// Masukkan Nilai ROC ke dalam Array Kriteria
 foreach ($data_kriteria as $index => $kriteria) {
     $urutan = $index + 1;
     $data_kriteria[$index]['bobot_roc'] = $nilaiROC[$urutan];
@@ -60,15 +65,18 @@ foreach ($data_kriteria as $index => $kriteria) {
             color: #333;
         }
 
+        /* Navbar */
         nav.navbar {
             background: #ffffff !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             margin-bottom: 40px;
         }
 
+        /* Main Card Milky Glass */
         .main-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
@@ -92,6 +100,7 @@ foreach ($data_kriteria as $index => $kriteria) {
             border-left: 5px solid #0d6efd;
         }
 
+        /* Tabel */
         .table {
             color: #333 !important;
             vertical-align: middle;
@@ -110,16 +119,20 @@ foreach ($data_kriteria as $index => $kriteria) {
             color: #333;
         }
 
+        /* Styling Accordion Penjelasan */
         .accordion-item {
-            border-radius: 10px !important;
-            margin-bottom: 15px;
             border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px !important;
+            overflow: hidden;
+            margin-bottom: 15px;
+            background-color: transparent;
         }
 
         .accordion-button {
             background-color: rgba(13, 110, 253, 0.05);
             color: #0d6efd;
             font-weight: 600;
+            box-shadow: none !important;
         }
 
         .accordion-button:not(.collapsed) {
@@ -127,10 +140,18 @@ foreach ($data_kriteria as $index => $kriteria) {
             color: #0b5ed7;
         }
 
+        .accordion-body {
+            background-color: #fff;
+            color: #555;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
         .rumus-box {
             background: #f1f3f5;
             padding: 15px;
             border-left: 4px solid #ffc107;
+            border-radius: 5px;
             font-family: 'Courier New', monospace;
             margin: 10px 0;
             color: #333;
@@ -188,12 +209,23 @@ foreach ($data_kriteria as $index => $kriteria) {
                                 </h2>
                                 <div id="collapseROC" class="accordion-collapse collapse" data-bs-parent="#accROC">
                                     <div class="accordion-body">
-                                        <p>Metode <strong>ROC</strong> memberi bobot berdasarkan prioritas (Ranking 1 = Paling Penting).</p>
-                                        <div class="rumus-box">W<sub>k</sub> = (1 / K) * &sum; (1 / i)</div>
+                                        <p><strong>Rank Order Centroid (ROC)</strong> memprioritaskan kriteria berdasarkan urutan (Ranking 1 = Terpenting).</p>
+
+                                        <div class="rumus-box">
+                                            <strong>Rumus:</strong> W<sub>k</sub> = (1 / K) * &sum; (1 / i)
+                                        </div>
+
+                                        <p class="mb-1"><strong>Simulasi Perhitungan:</strong></p>
                                         <ul class="list-group list-group-flush mb-2">
-                                            <li class="list-group-item bg-light py-1"><small><strong>Rank 1 (Skill):</strong> (1 + 0.5 + 0.33) / 3 = <strong>0.6111</strong></small></li>
-                                            <li class="list-group-item bg-light py-1"><small><strong>Rank 2 (Gaji):</strong> (0 + 0.5 + 0.33) / 3 = <strong>0.2778</strong></small></li>
-                                            <li class="list-group-item bg-light py-1"><small><strong>Rank 3 (Attitude):</strong> (0 + 0 + 0.33) / 3 = <strong>0.1111</strong></small></li>
+                                            <li class="list-group-item bg-light py-1">
+                                                <small><strong>Rank 1 (Paling Penting):</strong> (1 + 1/2 + 1/3) / 3 = <strong>0.6111</strong></small>
+                                            </li>
+                                            <li class="list-group-item bg-light py-1">
+                                                <small><strong>Rank 2:</strong> (0 + 1/2 + 1/3) / 3 = <strong>0.2778</strong></small>
+                                            </li>
+                                            <li class="list-group-item bg-light py-1">
+                                                <small><strong>Rank 3:</strong> (0 + 0 + 1/3) / 3 = <strong>0.1111</strong></small>
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>
@@ -239,21 +271,19 @@ foreach ($data_kriteria as $index => $kriteria) {
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseVectorS">
-                                        <i class="bi bi-calculator me-2"></i> Penjelasan Rumus & Contoh (Jofan)
+                                        <i class="bi bi-calculator me-2"></i> Penjelasan Rumus Vektor S
                                     </button>
                                 </h2>
                                 <div id="collapseVectorS" class="accordion-collapse collapse" data-bs-parent="#accVectorS">
                                     <div class="accordion-body">
-                                        <p>Vektor S menghitung preferensi tiap alternatif. Kategori <strong>COST</strong> menggunakan pangkat negatif agar nilai kecil (murah) menjadi besar.</p>
-                                        <div class="rumus-box">S<sub>i</sub> = &Pi; (Nilai) <sup>Bobot</sup></div>
-
-                                        <p><strong>Contoh Perhitungan: Alternatif "Jofan"</strong></p>
+                                        <p>Vektor S diperoleh dengan memangkatkan nilai kriteria alternatif dengan bobot ROC-nya.</p>
+                                        <div class="rumus-box">
+                                            <strong>Rumus:</strong> S<sub>i</sub> = &Pi; (Nilai) <sup>Bobot</sup>
+                                        </div>
                                         <ul>
-                                            <li><strong>Skill (5) [Benefit]:</strong> <span class="badge-nilai">5</span> <sup>0.6111</sup> = 2.675</li>
-                                            <li><strong>Gaji (3) [Cost]:</strong> <span class="badge-nilai">3</span> <sup>-0.2778</sup> = (1 / 3<sup>0.2778</sup>) = 0.737</li>
-                                            <li><strong>Attitude (4) [Benefit]:</strong> <span class="badge-nilai">4</span> <sup>0.1111</sup> = 1.166</li>
+                                            <li>Jika <strong>Benefit</strong>: Pangkat Positif (+Bobot)</li>
+                                            <li>Jika <strong>Cost</strong>: Pangkat Negatif (-Bobot)</li>
                                         </ul>
-                                        <p class="mb-0"><strong>Hasil S Jofan</strong> = 2.675 x 0.737 x 1.166 = <strong class="text-primary">2.298</strong></p>
                                     </div>
                                 </div>
                             </div>
@@ -297,8 +327,6 @@ foreach ($data_kriteria as $index => $kriteria) {
                                                 $nilai_faktor = $d_faktor['nilai_faktor'] ?? 0;
 
                                                 $bobotFinal = $curr_kriteria['bobot_roc'];
-
-                                                // Jika COST, bobot jadi negatif
                                                 if ($curr_kriteria['kriteria_kategori'] == "cost") {
                                                     $bobotFinal = $bobotFinal * -1;
                                                 }
@@ -336,9 +364,10 @@ foreach ($data_kriteria as $index => $kriteria) {
                                 </h2>
                                 <div id="collapseVectorV" class="accordion-collapse collapse" data-bs-parent="#accVectorV">
                                     <div class="accordion-body">
-                                        <p>Vektor V (Preferensi) adalah nilai akhir untuk perankingan. Diperoleh dari membagi nilai S alternatif dengan Total Seluruh Nilai S.</p>
-                                        <div class="rumus-box">V<sub>i</sub> = S<sub>i</sub> / &sum;S</div>
-                                        <p>Semakin tinggi nilai V, semakin direkomendasikan alternatif tersebut.</p>
+                                        <p>Vektor V adalah nilai akhir untuk perankingan. Diperoleh dari membagi nilai S alternatif dengan Total Seluruh Nilai S.</p>
+                                        <div class="rumus-box">
+                                            <strong>Rumus:</strong> V<sub>i</sub> = S<sub>i</sub> / &sum;S
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -362,6 +391,7 @@ foreach ($data_kriteria as $index => $kriteria) {
                                     while ($alternatif = $query_alternatif->fetch_assoc()) {
                                         $kode = $alternatif['alternatif_kode'];
                                         $s_val = $s_vector_storage[$kode] ?? 0;
+
                                         $nilai_wp = $s_val / $jumlah_vektor_total;
 
                                         $data_rank = [];

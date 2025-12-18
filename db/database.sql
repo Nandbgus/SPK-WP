@@ -1,6 +1,4 @@
--- ======================================================
--- 1. BUAT DATABASE
--- ======================================================
+-- HAPUS DB LAMA DAN BUAT BARU
 DROP DATABASE IF EXISTS db_wp;
 
 CREATE DATABASE db_wp CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
@@ -8,7 +6,7 @@ CREATE DATABASE db_wp CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE db_wp;
 
 -- ======================================================
--- 2. TABEL USER
+-- 1. TABEL USER
 -- ======================================================
 CREATE TABLE ta_user (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -17,7 +15,6 @@ CREATE TABLE ta_user (
     user_password VARCHAR(255) NOT NULL
 );
 
--- DEFAULT ADMIN
 INSERT INTO
     ta_user (
         user_kode,
@@ -27,7 +24,7 @@ INSERT INTO
 VALUES ('U01', 'Admin', MD5('admin'));
 
 -- ======================================================
--- 3. TABEL ALTERNATIF
+-- 2. TABEL ALTERNATIF
 -- ======================================================
 CREATE TABLE ta_alternatif (
     alternatif_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -35,7 +32,6 @@ CREATE TABLE ta_alternatif (
     alternatif_nama VARCHAR(100) NOT NULL
 ) ENGINE = InnoDB;
 
--- DEFAULT ALTERNATIF
 INSERT INTO
     ta_alternatif (
         alternatif_kode,
@@ -46,17 +42,17 @@ VALUES ('A01', 'Nanda'),
     ('A03', 'Dika');
 
 -- ======================================================
--- 4. TABEL KRITERIA
+-- 3. TABEL KRITERIA (Setting untuk ROC)
 -- ======================================================
 CREATE TABLE ta_kriteria (
     kriteria_id INT AUTO_INCREMENT PRIMARY KEY,
     kriteria_kode VARCHAR(20) UNIQUE NOT NULL,
     kriteria_nama VARCHAR(100) NOT NULL,
     kriteria_kategori ENUM('benefit', 'cost') NOT NULL,
-    kriteria_bobot DECIMAL(10, 4) NOT NULL
+    kriteria_bobot DECIMAL(10, 0) NOT NULL -- Ubah ke integer (0 desimal) untuk Ranking
 ) ENGINE = InnoDB;
 
--- DEFAULT KRITERIA
+-- INPUT PRIORITAS (1 = Terpenting)
 INSERT INTO
     ta_kriteria (
         kriteria_kode,
@@ -64,33 +60,29 @@ INSERT INTO
         kriteria_kategori,
         kriteria_bobot
     )
-VALUES (
-        'C01',
-        'Skill',
-        'benefit',
-        0.6000
-    ),
-    ('C02', 'Gaji', 'cost', 0.2000),
+VALUES ('C01', 'Skill', 'benefit', 1), -- Rank 1
+    ('C02', 'Gaji', 'cost', 2), -- Rank 2
     (
         'C03',
         'Attitude',
         'benefit',
-        0.2000
+        3
     );
+-- Rank 3
 
 -- ======================================================
--- 5. TABEL SUB-KRITERIA
+-- 4. TABEL SUB-KRITERIA
 -- ======================================================
 CREATE TABLE ta_subkriteria (
     subkriteria_id INT AUTO_INCREMENT PRIMARY KEY,
     subkriteria_kode VARCHAR(20) NOT NULL,
     kriteria_kode VARCHAR(20) NOT NULL,
-    subkriteria_bobot DECIMAL(10, 4) NOT NULL,
+    subkriteria_bobot DECIMAL(10, 2) NOT NULL,
     subkriteria_keterangan VARCHAR(255),
     FOREIGN KEY (kriteria_kode) REFERENCES ta_kriteria (kriteria_kode) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
--- SUB-KRITERIA: SKILL (C01)
+-- SKILL (Benefit: Semakin tinggi semakin baik)
 INSERT INTO
     ta_subkriteria (
         subkriteria_kode,
@@ -109,7 +101,9 @@ VALUES (
     ('S04', 'C01', 2, 'Kurang'),
     ('S05', 'C01', 1, 'Buruk');
 
--- SUB-KRITERIA: GAJI (C02)
+-- GAJI (Cost: Semakin kecil nilainya semakin baik)
+-- REVISI LOGIKA: Gaji Murah (<=4jt) diberi nilai 1 (Kecil), Gaji Mahal (>7jt) diberi nilai 5 (Besar).
+-- Karena sifatnya COST, WP akan membalik ini (1 jadi bagus, 5 jadi jelek).
 INSERT INTO
     ta_subkriteria (
         subkriteria_kode,
@@ -117,13 +111,13 @@ INSERT INTO
         subkriteria_bobot,
         subkriteria_keterangan
     )
-VALUES ('G01', 'C02', 5, '<= 4 juta'),
-    ('G02', 'C02', 4, '4–5 juta'),
+VALUES ('G01', 'C02', 1, '<= 4 juta'),
+    ('G02', 'C02', 2, '4–5 juta'),
     ('G03', 'C02', 3, '5–6 juta'),
-    ('G04', 'C02', 2, '6–7 juta'),
-    ('G05', 'C02', 1, '> 7 juta');
+    ('G04', 'C02', 4, '6–7 juta'),
+    ('G05', 'C02', 5, '> 7 juta');
 
--- SUB-KRITERIA: ATTITUDE (C03)
+-- ATTITUDE (Benefit)
 INSERT INTO
     ta_subkriteria (
         subkriteria_kode,
@@ -143,7 +137,7 @@ VALUES (
     ('A05', 'C03', 1, 'Buruk');
 
 -- ======================================================
--- 6. TABEL FAKTOR
+-- 5. TABEL FAKTOR (NILAI ALTERNATIF)
 -- ======================================================
 CREATE TABLE tb_faktor (
     nilai_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -154,21 +148,47 @@ CREATE TABLE tb_faktor (
     FOREIGN KEY (kriteria_kode) REFERENCES ta_kriteria (kriteria_kode) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
--- ======================================================
--- 7. DATA DEFAULT NILAI FAKTOR (CONTOH)
--- ======================================================
+-- DATA SESUAI KASUS ANDA
+-- NANDA: Skill 4, Gaji 2 (4-5jt), Attitude 5
 INSERT INTO
     tb_faktor (
         alternatif_kode,
         kriteria_kode,
         nilai_faktor
     )
-VALUES ('A01', 'C01', 4), -- Skill Nanda
-    ('A01', 'C02', 2), -- Gaji Nanda
-    ('A01', 'C03', 5), -- Attitude Nanda
-    ('A02', 'C01', 5),
+VALUES ('A01', 'C01', 4),
+    ('A01', 'C02', 2),
+    ('A01', 'C03', 5);
+
+-- JOFAN: Skill 5, Gaji 3 (5-6jt), Attitude 4
+INSERT INTO
+    tb_faktor (
+        alternatif_kode,
+        kriteria_kode,
+        nilai_faktor
+    )
+VALUES ('A02', 'C01', 5),
     ('A02', 'C02', 3),
-    ('A02', 'C03', 4),
-    ('A03', 'C01', 3),
+    ('A02', 'C03', 4);
+
+-- DIKA: Skill 3, Gaji 4 (6-7jt), Attitude 3
+INSERT INTO
+    tb_faktor (
+        alternatif_kode,
+        kriteria_kode,
+        nilai_faktor
+    )
+VALUES ('A03', 'C01', 3),
     ('A03', 'C02', 4),
     ('A03', 'C03', 3);
+
+-- ======================================================
+-- 6. TABEL RIWAYAT
+-- ======================================================
+CREATE TABLE riwayat_perhitungan (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    tanggal DATETIME DEFAULT CURRENT_TIMESTAMP,
+    alternatif_tertinggi VARCHAR(100) NOT NULL,
+    nilai_tertinggi FLOAT NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE = InnoDB;
