@@ -2,25 +2,36 @@
 include '../tools/connection.php';
 
 if (isset($_POST['update'])) {
+    $altKode = $_POST['altKode'];   // Kode Alternatif (misal: A01)
+    $nilaiData = $_POST['nilai'];   // Array Nilai (misal: [C01=>4, C02=>2])
 
-    $nilaiId = $_POST['nilaiId'];
-    $altKode = $_POST['altKode'];
-    $kriKode = $_POST['kriKode'];
-    $nilaiFaktor = $_POST['nilaiFaktor'];
+    // Validasi sederhana
+    if (empty($altKode) || empty($nilaiData)) {
+        echo "<script>alert('Data tidak lengkap!'); window.location.href='faktorView.php';</script>";
+        exit;
+    }
 
-    $updateBanyak = count($nilaiId);
+    // Loop untuk update setiap kriteria
+    foreach ($nilaiData as $kriKode => $nilai) {
 
-    for ($x = 0; $x < $updateBanyak; $x++) {
+        // Cek dulu apakah data nilai untuk kriteria ini sudah ada di database?
+        $cek = $conn->query("SELECT * FROM tb_faktor WHERE alternatif_kode='$altKode' AND kriteria_kode='$kriKode'");
 
-        $query = $conn->query("UPDATE tb_faktor SET nilai_id = '$nilaiId[$x]', alternatif_kode = '$altKode[$x]', kriteria_kode = '$kriKode[$x]', nilai_faktor = '$nilaiFaktor[$x]' WHERE nilai_id='$nilaiId[$x]'");
-
-        if ($query == True) {
-            echo "<script>
-            alert('Data Berhasil Disimpan');
-            window.location='faktorView.php'
-            </script>";
+        if ($cek->num_rows > 0) {
+            // JIKA ADA: Lakukan Update
+            $stmt = $conn->prepare("UPDATE tb_faktor SET nilai_faktor=? WHERE alternatif_kode=? AND kriteria_kode=?");
+            $stmt->bind_param("dss", $nilai, $altKode, $kriKode);
+            $stmt->execute();
         } else {
-            die('MySQL error : ' . mysqli_errno($conn));
+            // JIKA BELUM ADA (Misal kriteria baru ditambah): Lakukan Insert
+            $stmt = $conn->prepare("INSERT INTO tb_faktor (alternatif_kode, kriteria_kode, nilai_faktor) VALUES (?, ?, ?)");
+            $stmt->bind_param("ssd", $altKode, $kriKode, $nilai);
+            $stmt->execute();
         }
     }
+
+    echo "<script>alert('Data berhasil diperbarui!'); window.location.href='faktorView.php';</script>";
+} else {
+    // Jika file diakses langsung tanpa submit form
+    header("Location: faktorView.php");
 }
