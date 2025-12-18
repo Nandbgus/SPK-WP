@@ -5,119 +5,130 @@ include '../blade/header.php';
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data Alternatif</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
   <style>
     body {
       background: linear-gradient(135deg, #89f7fe, #66a6ff);
       min-height: 100vh;
       font-family: 'Poppins', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 40px 0;
+      padding-bottom: 50px;
     }
 
+    /* Navbar Transparan */
+    nav.navbar {
+      background: rgba(255, 255, 255, 0.9) !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 40px;
+    }
+
+    /* Kartu Glassmorphism */
     .main-card {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(12px);
-      border-radius: 18px;
-      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-      width: 95%;
-      max-width: 1100px;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+      padding: 30px;
       color: #fff;
-      padding: 25px;
     }
 
     h3 {
-      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Styling Tabel Custom */
+    .table {
       color: #fff;
-      text-align: center;
-      margin-bottom: 20px;
+      vertical-align: middle;
+      border-color: rgba(255, 255, 255, 0.3);
     }
 
     .table thead {
-      background-color: #0dcaf0;
+      background-color: rgba(0, 0, 0, 0.2);
       color: #fff;
-      text-align: center;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.4);
     }
 
-    .btn {
-      border-radius: 8px;
+    .table-hover tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
     }
 
+    .table-striped>tbody>tr:nth-of-type(odd)>* {
+      background-color: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    /* Modal text color fix */
     .modal-content {
-      border-radius: 12px;
-    }
-
-    .form-label {
-      font-weight: 500;
-    }
-
-    @media (max-width: 768px) {
-      .main-card {
-        width: 100%;
-        margin: 15px;
-      }
-      .table {
-        font-size: 0.9rem;
-      }
+      color: #333;
     }
   </style>
 </head>
 
 <body>
-  <div class="main-card">
-    <div class="card-header bg-transparent mb-3">
-      <?php include '../blade/namaProgram.php'; ?>
-    </div>
 
-    <?php include '../blade/nav.php'; ?>
+  <?php include '../blade/nav.php'; ?>
 
-    <div class="card-body">
-      <h3>Data Alternatif</h3>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-11">
+        <div class="main-card mt-4">
 
-      <div class="d-flex justify-content-end mb-2">
-        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAdd">
-          + Tambah Alternatif
-        </button>
-      </div>
+          <div class="mb-4 text-center">
+            <?php include '../blade/namaProgram.php'; ?>
+          </div>
 
-      <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle text-center">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Kode Alternatif</th>
-              <th>Nama Alternatif</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php
-            $data = $conn->query("SELECT * FROM ta_alternatif");
-            $no = 1;
-            while ($alternatif = $data->fetch_assoc()) { ?>
-              <tr>
-                <td><?= $no++; ?></td>
-                <td><?= $alternatif['alternatif_kode'] ?></td>
-                <td><?= $alternatif['alternatif_nama'] ?></td>
-                <td>
-                  <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEdit<?= $alternatif['alternatif_id'] ?>">Edit</button>
-                  <a href="alternatifDelete.php?id=<?= $alternatif['alternatif_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus data ini?')">Hapus</a>
-                </td>
-              </tr>
-            <?php } ?>
-          </tbody>
-        </table>
+          <h3 class="text-center mb-4 font-weight-bold">Data Alternatif</h3>
+
+          <div class="d-flex justify-content-end mb-3">
+            <button type="button" class="btn btn-light text-primary shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalAdd">
+              <i class="bi bi-plus-lg"></i> Tambah Alternatif
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle text-center">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Kode Alternatif</th>
+                  <th>Nama Alternatif</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php
+                $data = $conn->query("SELECT * FROM ta_alternatif");
+                $no = 1;
+                while ($alternatif = $data->fetch_assoc()) { ?>
+                  <tr>
+                    <td><?= $no++; ?></td>
+                    <td><span class="badge bg-info text-dark"><?= $alternatif['alternatif_kode'] ?></span></td>
+                    <td class="text-start ps-5 fw-bold"><?= $alternatif['alternatif_nama'] ?></td>
+                    <td>
+                      <button class="btn btn-warning btn-sm text-white" data-bs-toggle="modal" data-bs-target="#modalEdit<?= $alternatif['alternatif_id'] ?>"><i class="bi bi-pencil-square"></i></button>
+                      <a href="alternatifDelete.php?id=<?= $alternatif['alternatif_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus data ini?')"><i class="bi bi-trash"></i></a>
+                    </td>
+                  </tr>
+                <?php } ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  
   <div class="modal fade" id="modalAdd" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -137,12 +148,12 @@ include '../blade/header.php';
             }
             ?>
             <div class="mb-3">
-              <label for="altKode" class="form-label">Kode</label>
-              <input type="text" class="form-control" id="altKode" name="altKode" value="<?= $kode ?>" readonly>
+              <label class="form-label">Kode</label>
+              <input type="text" class="form-control" name="altKode" value="<?= $kode ?>" readonly>
             </div>
             <div class="mb-3">
-              <label for="altNama" class="form-label">Nama Alternatif</label>
-              <input type="text" class="form-control" id="altNama" name="altNama" required>
+              <label class="form-label">Nama Alternatif</label>
+              <input type="text" class="form-control" name="altNama" required>
             </div>
             <div class="text-end">
               <button type="submit" class="btn btn-primary" name="save">Simpan</button>
@@ -153,7 +164,6 @@ include '../blade/header.php';
     </div>
   </div>
 
-  
   <?php
   $data = $conn->query("SELECT * FROM ta_alternatif ORDER BY alternatif_id");
   while ($alternatif = $data->fetch_assoc()) { ?>
@@ -188,4 +198,5 @@ include '../blade/header.php';
   <?php include '../blade/footer.php'; ?>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
