@@ -70,10 +70,20 @@ include '../blade/header.php';
       color: #333 !important;
     }
 
+    /* Styling Modal agar Konsisten */
     .modal-content {
       color: #333;
       border: none;
       border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+      border-bottom: 1px solid #eee;
+    }
+
+    .modal-footer {
+      border-top: 1px solid #eee;
     }
   </style>
 </head>
@@ -106,6 +116,7 @@ include '../blade/header.php';
                   <th>No</th>
                   <th>Alternatif</th>
                   <?php
+                  // Header Kriteria Dinamis
                   $kri = $conn->query("SELECT * FROM ta_kriteria ORDER BY kriteria_kode");
                   $kriteriaList = [];
                   while ($row = $kri->fetch_assoc()) {
@@ -133,9 +144,9 @@ include '../blade/header.php';
                   }
 
                   echo "<td>
-                                        <button class='btn btn-warning btn-sm text-dark' data-bs-toggle='modal' data-bs-target='#modalEdit{$a['alternatif_kode']}'><i class='bi bi-pencil-square'></i></button>
-                                        <a href='faktorDelete.php?id={$a['alternatif_kode']}' class='btn btn-danger btn-sm' onclick=\"return confirm('Hapus data ini?')\"><i class='bi bi-trash'></i></a>
-                                    </td>";
+                          <button class='btn btn-warning btn-sm text-dark' data-bs-toggle='modal' data-bs-target='#modalEdit{$a['alternatif_kode']}'><i class='bi bi-pencil-square'></i></button>
+                          <a href='faktorDelete.php?id={$a['alternatif_kode']}' class='btn btn-danger btn-sm' onclick=\"return confirm('Hapus semua nilai untuk alternatif ini?')\"><i class='bi bi-trash'></i></a>
+                        </td>";
                   echo "</tr>";
                   $no++;
                 }
@@ -147,6 +158,104 @@ include '../blade/header.php';
       </div>
     </div>
   </div>
+
+  <div class="modal fade" id="modalAdd" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Input Nilai Faktor Baru</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post" action="faktorAdd.php">
+
+            <div class="mb-4">
+              <label class="form-label fw-bold">Pilih Alternatif / Kandidat</label>
+              <select class="form-select bg-light" name="altKode" required>
+                <option value="" disabled selected>-- Pilih Alternatif --</option>
+                <?php
+                // Ambil alternatif yang belum punya nilai (Opsional, hapus WHERE jika ingin dobel)
+                // $sqlAlt = "SELECT * FROM ta_alternatif WHERE alternatif_kode NOT IN (SELECT DISTINCT alternatif_kode FROM tb_faktor)";
+                $sqlAlt = "SELECT * FROM ta_alternatif";
+                $qAlt = $conn->query($sqlAlt);
+                while ($rowA = $qAlt->fetch_assoc()) {
+                  echo "<option value='" . $rowA['alternatif_kode'] . "'>" . $rowA['alternatif_kode'] . " - " . $rowA['alternatif_nama'] . "</option>";
+                }
+                ?>
+              </select>
+            </div>
+
+            <hr>
+            <h6 class="mb-3 text-primary">Isi Nilai Kriteria:</h6>
+
+            <div class="row">
+              <?php
+              $qKri = $conn->query("SELECT * FROM ta_kriteria ORDER BY kriteria_kode");
+              while ($k = $qKri->fetch_assoc()) {
+              ?>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label"><?= $k['kriteria_nama'] ?> (<?= $k['kriteria_kode'] ?>)</label>
+                  <input type="number" step="0.01" class="form-control" name="nilai[<?= $k['kriteria_kode'] ?>]" placeholder="Nilai 1-5" required>
+                </div>
+              <?php } ?>
+            </div>
+
+            <div class="text-end mt-3">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+              <button type="submit" class="btn btn-primary" name="save">Simpan Data</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <?php
+  // Kita perlu meloop ulang data Alternatif untuk membuat modal edit masing-masing
+  $qAltEdit = $conn->query("SELECT * FROM ta_alternatif ORDER BY alternatif_kode");
+  while ($altData = $qAltEdit->fetch_assoc()) {
+    $kodeAlt = $altData['alternatif_kode'];
+  ?>
+    <div class="modal fade" id="modalEdit<?= $kodeAlt ?>" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-warning text-dark">
+            <h5 class="modal-title">Edit Nilai: <strong><?= $altData['alternatif_nama'] ?></strong></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form method="post" action="faktorEdit.php">
+              <input type="hidden" name="altKode" value="<?= $kodeAlt ?>">
+
+              <div class="row">
+                <?php
+                // Loop Kriteria lagi untuk form edit
+                $qKriEdit = $conn->query("SELECT * FROM ta_kriteria ORDER BY kriteria_kode");
+                while ($kEdit = $qKriEdit->fetch_assoc()) {
+                  $kodeKri = $kEdit['kriteria_kode'];
+
+                  // Ambil nilai lama
+                  $qNilai = $conn->query("SELECT nilai_faktor FROM tb_faktor WHERE alternatif_kode='$kodeAlt' AND kriteria_kode='$kodeKri'");
+                  $dNilai = $qNilai->fetch_assoc();
+                  $nilaiLama = $dNilai['nilai_faktor'] ?? '';
+                ?>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label"><?= $kEdit['kriteria_nama'] ?></label>
+                    <input type="number" step="0.01" class="form-control" name="nilai[<?= $kodeKri ?>]" value="<?= $nilaiLama ?>" required>
+                  </div>
+                <?php } ?>
+              </div>
+
+              <div class="text-end mt-3">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-warning" name="update">Update Data</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  <?php } ?>
 
   <?php include '../blade/footer.php'; ?>
 
