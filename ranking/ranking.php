@@ -5,8 +5,9 @@ include '../tools/connection.php';
 include '../blade/header.php';
 
 // ==========================================
-// FUNGSI RANK ORDER CENTROID (ROC)
+// 1. FUNGSI & LOGIC ROC (Rank Order Centroid)
 // ==========================================
+
 function getBobotROC($totalKriteria)
 {
     $bobotROC = [];
@@ -23,24 +24,24 @@ function getBobotROC($totalKriteria)
     return $bobotROC;
 }
 
-// 1. PERSIAPAN DATA KRITERIA & HITUNG ROC
 // Ambil data kriteria dari database
+// PENTING: Diasumsikan urutan di database sudah sesuai prioritas (ID 1 = Prioritas 1, dst)
+// Jika ingin manual, pastikan ada kolom 'urutan_prioritas' dan ubah query jadi ORDER BY urutan_prioritas ASC
 $q_kriteria = $conn->query("SELECT * FROM ta_kriteria ORDER BY kriteria_id ASC");
-// Catatan: Pastikan urutan 'ORDER BY' sesuai prioritas yang diinginkan (Ranking 1, 2, dst)
 
 $data_kriteria = [];
 while ($row = $q_kriteria->fetch_assoc()) {
     $data_kriteria[] = $row;
 }
 
-// Hitung ROC berdasarkan jumlah data
+// Hitung Bobot ROC
 $jumlahKriteria = count($data_kriteria);
 $nilaiROC = getBobotROC($jumlahKriteria);
 
 // Masukkan Nilai ROC ke dalam Array Kriteria
 foreach ($data_kriteria as $index => $kriteria) {
-    $rank = $index + 1; // Ranking dimulai dari 1
-    $data_kriteria[$index]['bobot_roc'] = $nilaiROC[$rank];
+    $urutan = $index + 1; // Ranking dimulai dari 1
+    $data_kriteria[$index]['bobot_roc'] = $nilaiROC[$urutan];
 }
 ?>
 
@@ -50,7 +51,7 @@ foreach ($data_kriteria as $index => $kriteria) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hasil Perhitungan (Metode ROC-WP)</title>
+    <title>Hasil Perhitungan (ROC-WP)</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -58,69 +59,89 @@ foreach ($data_kriteria as $index => $kriteria) {
 
     <style>
         body {
+            /* Background Gradient */
             background: linear-gradient(135deg, #89f7fe, #66a6ff);
             min-height: 100vh;
             font-family: 'Poppins', sans-serif;
             padding-bottom: 50px;
+            color: #333;
+            /* Default text color: Dark Grey */
         }
 
-        /* Navbar Transparan */
+        /* Navbar Putih Bersih */
         nav.navbar {
-            background: rgba(255, 255, 255, 0.9) !important;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             margin-bottom: 40px;
         }
 
-        /* Kartu Glassmorphism */
+        /* Main Card: Putih Susu (Milky Glass) - High Opacity agar teks jelas */
         .main-card {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             padding: 30px;
-            color: #fff;
+            color: #333;
+            /* Text hitam */
         }
 
-        h3,
-        h4,
-        p {
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        /* Typography */
+        h3 {
+            font-weight: 700;
+            color: #0d6efd;
+            /* Bootstrap Primary Blue */
+            text-shadow: none;
         }
 
-        /* Styling Tabel */
+        .section-title {
+            background: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            color: #495057;
+            border-left: 5px solid #0d6efd;
+        }
+
+        /* Styling Tabel yang Jelas */
         .table {
-            color: #fff;
+            color: #333 !important;
             vertical-align: middle;
-            border-color: rgba(255, 255, 255, 0.3);
+            background-color: #fff;
         }
 
         .table thead {
-            background-color: rgba(0, 0, 0, 0.2);
+            background-color: #0d6efd;
+            /* Header Biru */
             color: #fff;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+            /* Teks Header Putih */
             text-align: center;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: #fff;
+            border-bottom: none;
         }
 
         .table-striped>tbody>tr:nth-of-type(odd)>* {
-            background-color: rgba(255, 255, 255, 0.05);
-            color: #fff;
+            background-color: rgba(0, 0, 0, 0.03);
+            /* Zebra striping halus */
+            color: #333;
         }
 
-        /* Section Title */
-        .section-title {
-            background: rgba(0, 0, 0, 0.15);
-            padding: 10px 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            font-weight: 700;
-            border-left: 5px solid #fff;
+        .table-hover tbody tr:hover>* {
+            background-color: rgba(13, 110, 253, 0.1);
+            /* Hover biru muda */
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 50px;
+            font-weight: 600;
+        }
+
+        .badge {
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
@@ -139,12 +160,12 @@ foreach ($data_kriteria as $index => $kriteria) {
                         <?php include '../blade/namaProgram.php'; ?>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-light pb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
                         <div>
                             <h3 class="mb-0">Hasil Perhitungan</h3>
-                            <small class="text-white opacity-75">Metode Rank Order Centroid (ROC) & Weighted Product (WP)</small>
+                            <small class="text-muted">Metode Rank Order Centroid (ROC) & Weighted Product (WP)</small>
                         </div>
-                        <button type="button" class="btn btn-light text-primary shadow-sm fw-bold" onclick="window.open('../cetak/cetakPDF.php', '_blank')">
+                        <button type="button" class="btn btn-primary shadow-sm" onclick="window.open('../cetak/cetakPDF.php', '_blank')">
                             <i class="bi bi-printer-fill"></i> Cetak PDF
                         </button>
                     </div>
@@ -156,12 +177,12 @@ foreach ($data_kriteria as $index => $kriteria) {
 
                     <div class="mb-5">
                         <div class="section-title">1. Tabel Bobot Kriteria (Metode ROC)</div>
-                        <div class="alert alert-light bg-opacity-25 text-white p-2 mb-3 shadow-sm">
-                            <small><i class="bi bi-info-circle"></i> Bobot dihitung otomatis berdasarkan urutan prioritas kriteria.</small>
+                        <div class="alert alert-primary py-2 mb-3 shadow-sm">
+                            <small><i class="bi bi-info-circle-fill"></i> Bobot dihitung otomatis berdasarkan urutan prioritas kriteria di database.</small>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-striped table-hover text-center align-middle">
-                                <thead>
+                            <table class="table table-striped table-hover text-center align-middle shadow-sm rounded overflow-hidden">
+                                <thead class="bg-primary text-white">
                                     <tr>
                                         <th>Prioritas</th>
                                         <th>Kode</th>
@@ -174,7 +195,7 @@ foreach ($data_kriteria as $index => $kriteria) {
                                     <?php foreach ($data_kriteria as $index => $row): ?>
                                         <tr>
                                             <td><span class="badge bg-warning text-dark">Ranking <?= $index + 1 ?></span></td>
-                                            <td><?= $row['kriteria_kode'] ?></td>
+                                            <td><span class="fw-bold"><?= $row['kriteria_kode'] ?></span></td>
                                             <td class="text-start ps-4"><?= $row['kriteria_nama'] ?></td>
                                             <td>
                                                 <?php if ($row['kriteria_kategori'] == 'benefit'): ?>
@@ -183,7 +204,7 @@ foreach ($data_kriteria as $index => $kriteria) {
                                                     <span class="badge bg-danger">Cost</span>
                                                 <?php endif; ?>
                                             </td>
-                                            <td class="fw-bold text-warning"><?= number_format($row['bobot_roc'], 4) ?></td>
+                                            <td class="fw-bold text-primary"><?= number_format($row['bobot_roc'], 4) ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
@@ -194,13 +215,13 @@ foreach ($data_kriteria as $index => $kriteria) {
                     <div class="mb-5">
                         <div class="section-title">2. Tabel Perhitungan Vektor Si (WP)</div>
                         <div class="table-responsive">
-                            <table class="table table-striped table-hover text-center align-middle">
-                                <thead>
+                            <table class="table table-striped table-hover text-center align-middle shadow-sm rounded overflow-hidden">
+                                <thead class="bg-primary text-white">
                                     <tr>
-                                        <th rowspan="2">No</th>
-                                        <th rowspan="2">Nama Alternatif</th>
-                                        <th colspan="<?= count($data_kriteria); ?>">Pangkat Bobot ROC per Kriteria</th>
-                                        <th rowspan="2" class="bg-primary text-white bg-opacity-50">Nilai Vektor Si</th>
+                                        <th rowspan="2" class="align-middle">No</th>
+                                        <th rowspan="2" class="align-middle">Nama Alternatif</th>
+                                        <th colspan="<?= count($data_kriteria); ?>" class="align-middle">Pangkat (Nilai ^ Bobot ROC)</th>
+                                        <th rowspan="2" class="align-middle bg-info text-white">Nilai Vektor Si</th>
                                     </tr>
                                     <tr>
                                         <?php foreach ($data_kriteria as $k): ?>
@@ -226,24 +247,24 @@ foreach ($data_kriteria as $index => $kriteria) {
                                             $total_nilai_vektor = 1;
                                             $alternatifKode = $alternatif['alternatif_kode'];
 
-                                            // LOOP PER KRITERIA MENGGUNAKAN DATA ROC
+                                            // === LOGIC UTAMA WP DENGAN ROC ===
                                             foreach ($data_kriteria as $curr_kriteria) {
                                                 $kriteriaKode = $curr_kriteria['kriteria_kode'];
 
-                                                // Ambil nilai faktor (nilai asli)
+                                                // 1. Ambil nilai faktor (nilai asli)
                                                 $q_faktor = $conn->query("SELECT nilai_faktor FROM tb_faktor WHERE alternatif_kode='$alternatifKode' AND kriteria_kode='$kriteriaKode'");
                                                 $d_faktor = $q_faktor->fetch_assoc();
                                                 $nilai_faktor = $d_faktor['nilai_faktor'] ?? 0;
 
-                                                // Ambil Bobot ROC
+                                                // 2. Ambil Bobot dari hasil ROC
                                                 $bobotFinal = $curr_kriteria['bobot_roc'];
 
-                                                // Cek Cost / Benefit untuk Pangkat
+                                                // 3. Cek Cost / Benefit untuk Pangkat
                                                 if ($curr_kriteria['kriteria_kategori'] == "cost") {
                                                     $bobotFinal = $bobotFinal * -1;
                                                 }
 
-                                                // Rumus Pangkat
+                                                // 4. Hitung Pangkat
                                                 // Mencegah error jika nilai 0 dipangkatkan negatif
                                                 if ($nilai_faktor == 0) $nilai_faktor = 0.0001;
 
@@ -251,11 +272,11 @@ foreach ($data_kriteria as $index => $kriteria) {
                                                 $total_nilai_vektor *= $nilai_pangkat;
                                             ?>
 
-                                                <td><?= number_format($nilai_pangkat, 4); ?></td>
+                                                <td class="text-muted"><small><?= number_format($nilai_pangkat, 4); ?></small></td>
 
                                             <?php } ?>
 
-                                            <td class="fw-bold bg-primary text-white bg-opacity-25"><?= number_format($total_nilai_vektor, 4); ?></td>
+                                            <td class="fw-bold bg-info bg-opacity-10 text-dark"><?= number_format($total_nilai_vektor, 4); ?></td>
 
                                             <?php
                                             // Akumulasi Sigma S
@@ -268,7 +289,7 @@ foreach ($data_kriteria as $index => $kriteria) {
                             </table>
                         </div>
                         <?php
-                        // Total Sigma S
+                        // Total Sigma S untuk pembagi Vi
                         $jumlah_vektor_total = ($nilai_vector_si == 0) ? 1 : $nilai_vector_si;
                         ?>
                     </div>
@@ -276,14 +297,14 @@ foreach ($data_kriteria as $index => $kriteria) {
                     <div class="mb-5">
                         <div class="section-title">3. Tabel Perhitungan Vektor Vi (Preferensi)</div>
                         <div class="table-responsive">
-                            <table class="table table-striped table-hover text-center align-middle">
-                                <thead>
+                            <table class="table table-striped table-hover text-center align-middle shadow-sm rounded overflow-hidden">
+                                <thead class="bg-primary text-white">
                                     <tr>
                                         <th>No</th>
                                         <th>Alternatif</th>
                                         <th>Nilai Vektor Si</th>
                                         <th>Total Sigma Si</th>
-                                        <th class="bg-success text-white bg-opacity-75">Nilai Vektor Vi (Hasil)</th>
+                                        <th class="bg-success text-white">Nilai Vektor Vi (Hasil Akhir)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -297,18 +318,22 @@ foreach ($data_kriteria as $index => $kriteria) {
                                         // Rumus Vi = Si / Sigma Si
                                         $nilai_wp = $s_val / $jumlah_vektor_total;
 
-                                        // Simpan ke array untuk ranking
-                                        $rank['nilaiWP'] = $nilai_wp;
-                                        $rank['alternatifNama'] = $alternatif['alternatif_nama'];
-                                        $rank['alternatifKode'] = $alternatif['alternatif_kode'];
-                                        array_push($ranks, $rank);
+                                        // === FIX ERROR SCALAR VALUE DISINI ===
+                                        // Gunakan variabel baru $data_rank, JANGAN gunakan $rank (karena $rank dipakai di loop atas sebagai integer)
+                                        $data_rank = [];
+                                        $data_rank['nilaiWP'] = $nilai_wp;
+                                        $data_rank['alternatifNama'] = $alternatif['alternatif_nama'];
+                                        $data_rank['alternatifKode'] = $alternatif['alternatif_kode'];
+
+                                        // Masukkan ke array utama
+                                        array_push($ranks, $data_rank);
                                     ?>
                                         <tr>
                                             <td><?= $no++; ?></td>
                                             <td class="text-start ps-3"><?= $alternatif['alternatif_nama'] ?></td>
                                             <td><?= number_format($s_val, 4); ?></td>
                                             <td><?= number_format($jumlah_vektor_total, 4); ?></td>
-                                            <td class="bg-success text-white bg-opacity-50 fw-bold"><?= number_format($nilai_wp, 4); ?></td>
+                                            <td class="bg-success bg-opacity-10 text-success fw-bold"><?= number_format($nilai_wp, 4); ?></td>
                                         </tr>
                                     <?php } ?>
                                 </tbody>
@@ -319,7 +344,7 @@ foreach ($data_kriteria as $index => $kriteria) {
                     <div class="mb-4">
                         <div class="section-title bg-warning text-dark border-start border-dark">4. Hasil Perangkingan Akhir</div>
                         <div class="table-responsive">
-                            <table class="table table-hover text-center align-middle">
+                            <table class="table table-hover text-center align-middle shadow-sm rounded overflow-hidden">
                                 <thead class="table-dark">
                                     <tr>
                                         <th>Ranking</th>
@@ -331,7 +356,7 @@ foreach ($data_kriteria as $index => $kriteria) {
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $ranking = 1;
+                                    $nomor_rank = 1; // Ubah nama variabel agar aman
                                     rsort($ranks); // Urutkan array dari besar ke kecil (DESC)
 
                                     // === LOGIC INSERT HISTORY (Hanya Juara 1) ===
@@ -340,31 +365,27 @@ foreach ($data_kriteria as $index => $kriteria) {
                                         $nama  = $top['alternatifNama'];
                                         $nilai = $top['nilaiWP'];
 
-                                        // Cek apakah sudah ada data hari ini agar tidak double insert saat refresh (Opsional)
-                                        // $cek = $conn->query("SELECT * FROM riwayat_perhitungan WHERE alternatif_tertinggi = '$nama' AND nilai_tertinggi = '$nilai' AND date(tanggal) = date(now())");
-                                        // if($cek->num_rows == 0) { ... }
-
                                         // Insert database
                                         $conn->query("INSERT INTO riwayat_perhitungan (tanggal, alternatif_tertinggi, nilai_tertinggi) VALUES (NOW(), '$nama', '$nilai')");
                                     }
 
                                     foreach ($ranks as $r) {
                                     ?>
-                                        <tr class="<?= ($ranking == 1) ? 'bg-warning bg-opacity-25' : '' ?>">
+                                        <tr class="<?= ($nomor_rank == 1) ? 'table-warning' : '' ?>">
                                             <td>
-                                                <?php if ($ranking == 1): ?>
-                                                    <i class="bi bi-trophy-fill text-warning fs-5"></i>
+                                                <?php if ($nomor_rank == 1): ?>
+                                                    <i class="bi bi-trophy-fill text-warning fs-4"></i>
                                                 <?php else: ?>
-                                                    <span class="badge bg-secondary rounded-circle"><?= $ranking; ?></span>
+                                                    <span class="badge bg-secondary rounded-circle" style="width: 25px; height: 25px; line-height: 18px;"><?= $nomor_rank; ?></span>
                                                 <?php endif; ?>
                                             </td>
                                             <td><?= $r['alternatifKode']; ?></td>
                                             <td class="fw-bold"><?= $r['alternatifNama']; ?></td>
                                             <td><?= number_format($r['nilaiWP'], 4); ?></td>
                                             <td>
-                                                <?php if ($ranking <= 3): ?>
+                                                <?php if ($nomor_rank <= 3): ?>
                                                     <span class="badge bg-success rounded-pill">Sangat Direkomendasikan</span>
-                                                <?php elseif ($ranking <= 5): ?>
+                                                <?php elseif ($nomor_rank <= 5): ?>
                                                     <span class="badge bg-info rounded-pill text-dark">Direkomendasikan</span>
                                                 <?php else: ?>
                                                     <span class="badge bg-secondary rounded-pill">Belum Direkomendasikan</span>
@@ -372,14 +393,14 @@ foreach ($data_kriteria as $index => $kriteria) {
                                             </td>
                                         </tr>
                                     <?php
-                                        $ranking++;
+                                        $nomor_rank++;
                                     } ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <div class="text-center mt-4 border-top border-light pt-3 opacity-75">
+                    <div class="text-center mt-4 border-top pt-3 opacity-75">
                         <?php include '../blade/footer.php' ?>
                     </div>
 
