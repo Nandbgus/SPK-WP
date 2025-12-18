@@ -11,24 +11,18 @@ include '../blade/header.php';
 function getBobotROC($totalKriteria)
 {
     $bobotROC = [];
-    // Loop untuk setiap ranking (k)
     for ($k = 1; $k <= $totalKriteria; $k++) {
         $sum = 0;
-        // Rumus ROC: Penjumlahan pecahan harmoni
         for ($i = $k; $i <= $totalKriteria; $i++) {
             $sum += (1 / $i);
         }
-        // Hasil dibagi total kriteria
         $bobotROC[$k] = $sum / $totalKriteria;
     }
     return $bobotROC;
 }
 
-// Ambil data kriteria dari database
-// PENTING: Diasumsikan urutan di database sudah sesuai prioritas (ID 1 = Prioritas 1, dst)
-// Jika ingin manual, pastikan ada kolom 'urutan_prioritas' dan ubah query jadi ORDER BY urutan_prioritas ASC
+// Ambil data kriteria
 $q_kriteria = $conn->query("SELECT * FROM ta_kriteria ORDER BY kriteria_id ASC");
-
 $data_kriteria = [];
 while ($row = $q_kriteria->fetch_assoc()) {
     $data_kriteria[] = $row;
@@ -38,9 +32,9 @@ while ($row = $q_kriteria->fetch_assoc()) {
 $jumlahKriteria = count($data_kriteria);
 $nilaiROC = getBobotROC($jumlahKriteria);
 
-// Masukkan Nilai ROC ke dalam Array Kriteria
+// Masukkan Nilai ROC ke array
 foreach ($data_kriteria as $index => $kriteria) {
-    $urutan = $index + 1; // Ranking dimulai dari 1
+    $urutan = $index + 1;
     $data_kriteria[$index]['bobot_roc'] = $nilaiROC[$urutan];
 }
 ?>
@@ -59,40 +53,32 @@ foreach ($data_kriteria as $index => $kriteria) {
 
     <style>
         body {
-            /* Background Gradient */
             background: linear-gradient(135deg, #89f7fe, #66a6ff);
             min-height: 100vh;
             font-family: 'Poppins', sans-serif;
             padding-bottom: 50px;
             color: #333;
-            /* Default text color: Dark Grey */
         }
 
-        /* Navbar Putih Bersih */
         nav.navbar {
             background: #ffffff !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             margin-bottom: 40px;
         }
 
-        /* Main Card: Putih Susu (Milky Glass) - High Opacity agar teks jelas */
         .main-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             padding: 30px;
             color: #333;
-            /* Text hitam */
         }
 
-        /* Typography */
         h3 {
             font-weight: 700;
             color: #0d6efd;
-            /* Bootstrap Primary Blue */
             text-shadow: none;
         }
 
@@ -100,13 +86,12 @@ foreach ($data_kriteria as $index => $kriteria) {
             background: #e9ecef;
             padding: 10px 15px;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             font-weight: 700;
             color: #495057;
             border-left: 5px solid #0d6efd;
         }
 
-        /* Styling Tabel yang Jelas */
         .table {
             color: #333 !important;
             vertical-align: middle;
@@ -115,33 +100,49 @@ foreach ($data_kriteria as $index => $kriteria) {
 
         .table thead {
             background-color: #0d6efd;
-            /* Header Biru */
             color: #fff;
-            /* Teks Header Putih */
             text-align: center;
             border-bottom: none;
         }
 
         .table-striped>tbody>tr:nth-of-type(odd)>* {
             background-color: rgba(0, 0, 0, 0.03);
-            /* Zebra striping halus */
             color: #333;
         }
 
-        .table-hover tbody tr:hover>* {
-            background-color: rgba(13, 110, 253, 0.1);
-            /* Hover biru muda */
+        .accordion-item {
+            border-radius: 10px !important;
+            margin-bottom: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
-        /* Buttons */
-        .btn {
-            border-radius: 50px;
+        .accordion-button {
+            background-color: rgba(13, 110, 253, 0.05);
+            color: #0d6efd;
             font-weight: 600;
         }
 
-        .badge {
-            font-weight: 500;
-            letter-spacing: 0.5px;
+        .accordion-button:not(.collapsed) {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: #0b5ed7;
+        }
+
+        .rumus-box {
+            background: #f1f3f5;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .badge-nilai {
+            background: #e9ecef;
+            color: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            border: 1px solid #ccc;
         }
     </style>
 </head>
@@ -177,9 +178,28 @@ foreach ($data_kriteria as $index => $kriteria) {
 
                     <div class="mb-5">
                         <div class="section-title">1. Tabel Bobot Kriteria (Metode ROC)</div>
-                        <div class="alert alert-primary py-2 mb-3 shadow-sm">
-                            <small><i class="bi bi-info-circle-fill"></i> Bobot dihitung otomatis berdasarkan urutan prioritas kriteria di database.</small>
+
+                        <div class="accordion" id="accROC">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseROC">
+                                        <i class="bi bi-book me-2"></i> Penjelasan Rumus ROC
+                                    </button>
+                                </h2>
+                                <div id="collapseROC" class="accordion-collapse collapse" data-bs-parent="#accROC">
+                                    <div class="accordion-body">
+                                        <p>Metode <strong>ROC</strong> memberi bobot berdasarkan prioritas (Ranking 1 = Paling Penting).</p>
+                                        <div class="rumus-box">W<sub>k</sub> = (1 / K) * &sum; (1 / i)</div>
+                                        <ul class="list-group list-group-flush mb-2">
+                                            <li class="list-group-item bg-light py-1"><small><strong>Rank 1 (Skill):</strong> (1 + 0.5 + 0.33) / 3 = <strong>0.6111</strong></small></li>
+                                            <li class="list-group-item bg-light py-1"><small><strong>Rank 2 (Gaji):</strong> (0 + 0.5 + 0.33) / 3 = <strong>0.2778</strong></small></li>
+                                            <li class="list-group-item bg-light py-1"><small><strong>Rank 3 (Attitude):</strong> (0 + 0 + 0.33) / 3 = <strong>0.1111</strong></small></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                         <div class="table-responsive">
                             <table class="table table-striped table-hover text-center align-middle shadow-sm rounded overflow-hidden">
                                 <thead class="bg-primary text-white">
@@ -214,6 +234,31 @@ foreach ($data_kriteria as $index => $kriteria) {
 
                     <div class="mb-5">
                         <div class="section-title">2. Tabel Perhitungan Vektor Si (WP)</div>
+
+                        <div class="accordion" id="accVectorS">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseVectorS">
+                                        <i class="bi bi-calculator me-2"></i> Penjelasan Rumus & Contoh (Jofan)
+                                    </button>
+                                </h2>
+                                <div id="collapseVectorS" class="accordion-collapse collapse" data-bs-parent="#accVectorS">
+                                    <div class="accordion-body">
+                                        <p>Vektor S menghitung preferensi tiap alternatif. Kategori <strong>COST</strong> menggunakan pangkat negatif agar nilai kecil (murah) menjadi besar.</p>
+                                        <div class="rumus-box">S<sub>i</sub> = &Pi; (Nilai) <sup>Bobot</sup></div>
+
+                                        <p><strong>Contoh Perhitungan: Alternatif "Jofan"</strong></p>
+                                        <ul>
+                                            <li><strong>Skill (5) [Benefit]:</strong> <span class="badge-nilai">5</span> <sup>0.6111</sup> = 2.675</li>
+                                            <li><strong>Gaji (3) [Cost]:</strong> <span class="badge-nilai">3</span> <sup>-0.2778</sup> = (1 / 3<sup>0.2778</sup>) = 0.737</li>
+                                            <li><strong>Attitude (4) [Benefit]:</strong> <span class="badge-nilai">4</span> <sup>0.1111</sup> = 1.166</li>
+                                        </ul>
+                                        <p class="mb-0"><strong>Hasil S Jofan</strong> = 2.675 x 0.737 x 1.166 = <strong class="text-primary">2.298</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table table-striped table-hover text-center align-middle shadow-sm rounded overflow-hidden">
                                 <thead class="bg-primary text-white">
@@ -234,8 +279,6 @@ foreach ($data_kriteria as $index => $kriteria) {
                                     $query_alternatif = $conn->query("SELECT * FROM ta_alternatif ORDER BY alternatif_kode");
                                     $no = 1;
                                     $nilai_vector_si = 0;
-
-                                    // Array bantu penyimpanan S Vector untuk tabel berikutnya
                                     $s_vector_storage = [];
 
                                     while ($alternatif = $query_alternatif->fetch_assoc()) { ?>
@@ -247,39 +290,29 @@ foreach ($data_kriteria as $index => $kriteria) {
                                             $total_nilai_vektor = 1;
                                             $alternatifKode = $alternatif['alternatif_kode'];
 
-                                            // === LOGIC UTAMA WP DENGAN ROC ===
                                             foreach ($data_kriteria as $curr_kriteria) {
                                                 $kriteriaKode = $curr_kriteria['kriteria_kode'];
-
-                                                // 1. Ambil nilai faktor (nilai asli)
                                                 $q_faktor = $conn->query("SELECT nilai_faktor FROM tb_faktor WHERE alternatif_kode='$alternatifKode' AND kriteria_kode='$kriteriaKode'");
                                                 $d_faktor = $q_faktor->fetch_assoc();
                                                 $nilai_faktor = $d_faktor['nilai_faktor'] ?? 0;
 
-                                                // 2. Ambil Bobot dari hasil ROC
                                                 $bobotFinal = $curr_kriteria['bobot_roc'];
 
-                                                // 3. Cek Cost / Benefit untuk Pangkat
+                                                // Jika COST, bobot jadi negatif
                                                 if ($curr_kriteria['kriteria_kategori'] == "cost") {
                                                     $bobotFinal = $bobotFinal * -1;
                                                 }
 
-                                                // 4. Hitung Pangkat
-                                                // Mencegah error jika nilai 0 dipangkatkan negatif
                                                 if ($nilai_faktor == 0) $nilai_faktor = 0.0001;
-
                                                 $nilai_pangkat = pow($nilai_faktor, $bobotFinal);
                                                 $total_nilai_vektor *= $nilai_pangkat;
                                             ?>
-
                                                 <td class="text-muted"><small><?= number_format($nilai_pangkat, 4); ?></small></td>
-
                                             <?php } ?>
 
                                             <td class="fw-bold bg-info bg-opacity-10 text-dark"><?= number_format($total_nilai_vektor, 4); ?></td>
 
                                             <?php
-                                            // Akumulasi Sigma S
                                             $nilai_vector_si += $total_nilai_vektor;
                                             $s_vector_storage[$alternatifKode] = $total_nilai_vektor;
                                             ?>
@@ -288,14 +321,29 @@ foreach ($data_kriteria as $index => $kriteria) {
                                 </tbody>
                             </table>
                         </div>
-                        <?php
-                        // Total Sigma S untuk pembagi Vi
-                        $jumlah_vektor_total = ($nilai_vector_si == 0) ? 1 : $nilai_vector_si;
-                        ?>
+                        <?php $jumlah_vektor_total = ($nilai_vector_si == 0) ? 1 : $nilai_vector_si; ?>
                     </div>
 
                     <div class="mb-5">
                         <div class="section-title">3. Tabel Perhitungan Vektor Vi (Preferensi)</div>
+
+                        <div class="accordion" id="accVectorV">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseVectorV">
+                                        <i class="bi bi-bar-chart-steps me-2"></i> Penjelasan Rumus Vektor V
+                                    </button>
+                                </h2>
+                                <div id="collapseVectorV" class="accordion-collapse collapse" data-bs-parent="#accVectorV">
+                                    <div class="accordion-body">
+                                        <p>Vektor V (Preferensi) adalah nilai akhir untuk perankingan. Diperoleh dari membagi nilai S alternatif dengan Total Seluruh Nilai S.</p>
+                                        <div class="rumus-box">V<sub>i</sub> = S<sub>i</sub> / &sum;S</div>
+                                        <p>Semakin tinggi nilai V, semakin direkomendasikan alternatif tersebut.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table table-striped table-hover text-center align-middle shadow-sm rounded overflow-hidden">
                                 <thead class="bg-primary text-white">
@@ -314,18 +362,13 @@ foreach ($data_kriteria as $index => $kriteria) {
                                     while ($alternatif = $query_alternatif->fetch_assoc()) {
                                         $kode = $alternatif['alternatif_kode'];
                                         $s_val = $s_vector_storage[$kode] ?? 0;
-
-                                        // Rumus Vi = Si / Sigma Si
                                         $nilai_wp = $s_val / $jumlah_vektor_total;
 
-                                        // === FIX ERROR SCALAR VALUE DISINI ===
-                                        // Gunakan variabel baru $data_rank, JANGAN gunakan $rank (karena $rank dipakai di loop atas sebagai integer)
                                         $data_rank = [];
                                         $data_rank['nilaiWP'] = $nilai_wp;
                                         $data_rank['alternatifNama'] = $alternatif['alternatif_nama'];
                                         $data_rank['alternatifKode'] = $alternatif['alternatif_kode'];
 
-                                        // Masukkan ke array utama
                                         array_push($ranks, $data_rank);
                                     ?>
                                         <tr>
@@ -343,6 +386,13 @@ foreach ($data_kriteria as $index => $kriteria) {
 
                     <div class="mb-4">
                         <div class="section-title bg-warning text-dark border-start border-dark">4. Hasil Perangkingan Akhir</div>
+
+                        <div class="alert alert-warning py-2 mb-3 shadow-sm text-dark">
+                            <i class="bi bi-info-circle-fill"></i>
+                            <strong>Keterangan Keputusan:</strong>
+                            Ranking 1-3 (Sangat Direkomendasikan), Ranking 4-5 (Direkomendasikan), Selebihnya (Belum Direkomendasikan).
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table table-hover text-center align-middle shadow-sm rounded overflow-hidden">
                                 <thead class="table-dark">
@@ -356,16 +406,13 @@ foreach ($data_kriteria as $index => $kriteria) {
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $nomor_rank = 1; // Ubah nama variabel agar aman
-                                    rsort($ranks); // Urutkan array dari besar ke kecil (DESC)
+                                    $nomor_rank = 1;
+                                    rsort($ranks);
 
-                                    // === LOGIC INSERT HISTORY (Hanya Juara 1) ===
                                     if (count($ranks) > 0) {
                                         $top = $ranks[0];
                                         $nama  = $top['alternatifNama'];
                                         $nilai = $top['nilaiWP'];
-
-                                        // Insert database
                                         $conn->query("INSERT INTO riwayat_perhitungan (tanggal, alternatif_tertinggi, nilai_tertinggi) VALUES (NOW(), '$nama', '$nilai')");
                                     }
 
@@ -383,7 +430,9 @@ foreach ($data_kriteria as $index => $kriteria) {
                                             <td class="fw-bold"><?= $r['alternatifNama']; ?></td>
                                             <td><?= number_format($r['nilaiWP'], 4); ?></td>
                                             <td>
-                                                <?php if ($nomor_rank <= 3): ?>
+                                                <?php
+                                                // === BATAS REKOMENDASI ===
+                                                if ($nomor_rank <= 3): ?>
                                                     <span class="badge bg-success rounded-pill">Sangat Direkomendasikan</span>
                                                 <?php elseif ($nomor_rank <= 5): ?>
                                                     <span class="badge bg-info rounded-pill text-dark">Direkomendasikan</span>
