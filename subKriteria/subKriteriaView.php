@@ -22,71 +22,69 @@ include '../blade/header.php';
       min-height: 100vh;
       font-family: 'Poppins', sans-serif;
       padding-bottom: 50px;
+      color: #333;
     }
 
     nav.navbar {
-      background: rgba(255, 255, 255, 0.9) !important;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      background: #ffffff !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       margin-bottom: 40px;
     }
 
     .main-card {
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
       border-radius: 20px;
-      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
       padding: 30px;
-      color: #fff;
+      color: #333;
     }
 
     h3 {
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      font-weight: 700;
+      color: #0d6efd;
     }
 
+    /* TABEL STYLING */
     .table {
-      color: #fff !important;
-      vertical-align: middle;
-      border-color: rgba(255, 255, 255, 0.3);
+      color: #333 !important;
+      border-color: #dee2e6;
     }
 
     .table thead {
-      background-color: rgba(0, 0, 0, 0.2);
-      color: #fff;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.4);
-    }
-
-    .table-hover tbody tr:hover {
-      background-color: rgba(255, 255, 255, 0.2) !important;
+      background-color: #0d6efd;
       color: #fff;
     }
 
     .table-striped>tbody>tr:nth-of-type(odd)>* {
-      background-color: rgba(255, 255, 255, 0.05) !important;
-      color: #fff !important;
+      background-color: rgba(0, 0, 0, 0.02) !important;
+      color: #333 !important;
     }
 
-    /* DataTables overrides for Glass Theme */
+    /* DATA TABLES COLOR OVERRIDE */
     .dataTables_wrapper .dataTables_length,
     .dataTables_wrapper .dataTables_filter,
     .dataTables_wrapper .dataTables_info,
     .dataTables_wrapper .dataTables_processing,
     .dataTables_wrapper .dataTables_paginate {
-      color: #fff !important;
-      margin-bottom: 10px;
+      color: #333 !important;
+      margin-bottom: 15px;
     }
 
-    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
-      color: rgba(255, 255, 255, 0.5) !important;
+    /* Pagination Buttons */
+    .page-item.active .page-link {
+      background-color: #0d6efd;
+      border-color: #0d6efd;
     }
 
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-      color: #fff !important;
+    .page-link {
+      color: #0d6efd;
     }
 
     .modal-content {
       color: #333;
+      border: none;
+      border-radius: 15px;
     }
   </style>
 </head>
@@ -104,17 +102,17 @@ include '../blade/header.php';
             <?php include '../blade/namaProgram.php'; ?>
           </div>
 
-          <h3 class="text-center mb-4 font-weight-bold">Data Sub-Kriteria</h3>
+          <h3 class="text-center mb-4">Data Sub-Kriteria</h3>
 
           <div class="d-flex justify-content-end mb-3">
-            <button type="button" class="btn btn-light text-primary shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalAdd">
+            <button type="button" class="btn btn-primary shadow-sm fw-bold px-4" data-bs-toggle="modal" data-bs-target="#modalAdd">
               <i class="bi bi-plus-lg"></i> Tambah Sub-Kriteria
             </button>
           </div>
 
           <div class="table-responsive">
-            <table id="tableSubKriteria" class="table table-striped table-hover align-middle text-center" style="width:100%">
-              <thead>
+            <table id="tableSubKriteria" class="table table-striped table-hover align-middle text-center shadow-sm" style="width:100%">
+              <thead class="bg-primary text-white">
                 <tr>
                   <th>No</th>
                   <th>Kriteria</th>
@@ -135,10 +133,10 @@ include '../blade/header.php';
                     <td><?= $no++; ?></td>
                     <td class="fw-bold"><?= $row['kriteria_nama']; ?></td>
                     <td><span class="badge bg-secondary"><?= $row['subkriteria_kode']; ?></span></td>
-                    <td><?= $row['subkriteria_keterangan']; ?></td>
-                    <td><span class="badge bg-light text-dark"><?= $row['subkriteria_bobot']; ?></span></td>
+                    <td class="text-start ps-4"><?= $row['subkriteria_keterangan']; ?></td>
+                    <td><span class="badge bg-info text-dark"><?= $row['subkriteria_bobot']; ?></span></td>
                     <td>
-                      <button class="btn btn-warning btn-sm text-white" data-bs-toggle="modal" data-bs-target="#modalEdit<?= $row['subkriteria_id'] ?>"><i class="bi bi-pencil-square"></i></button>
+                      <button class="btn btn-warning btn-sm text-dark" data-bs-toggle="modal" data-bs-target="#modalEdit<?= $row['subkriteria_id'] ?>"><i class="bi bi-pencil-square"></i></button>
                       <a href="subkriteriaDelete.php?id=<?= $row['subkriteria_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus data ini?')"><i class="bi bi-trash"></i></a>
                     </td>
                   </tr>
@@ -152,11 +150,11 @@ include '../blade/header.php';
   </div>
 
   <div class="modal fade" id="modalAdd" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header bg-info text-white">
-          <h5 class="modal-title">Tambah Data Sub-Kriteria</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Tambah Sub-Kriteria</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form method="post" action="subkriteriaAdd.php">
@@ -170,8 +168,8 @@ include '../blade/header.php';
             }
             ?>
             <div class="mb-3">
-              <label class="form-label">Kode Sub-Kriteria</label>
-              <input type="text" class="form-control" name="subkriKode" value="<?= $kode ?>" readonly>
+              <label class="form-label">Kode</label>
+              <input type="text" class="form-control bg-light" name="subkriKode" value="<?= $kode ?>" readonly>
             </div>
             <div class="mb-3">
               <label class="form-label">Kriteria</label>
@@ -187,11 +185,11 @@ include '../blade/header.php';
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label">Keterangan</label>
+              <label class="form-label">Keterangan Sub-Kriteria</label>
               <input type="text" class="form-control" name="subkriKeterangan" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Bobot</label>
+              <label class="form-label">Nilai Bobot</label>
               <input type="number" step="0.01" class="form-control" name="subkriBobot" required>
             </div>
             <div class="text-end">
@@ -207,18 +205,18 @@ include '../blade/header.php';
   $data = $conn->query("SELECT * FROM ta_subkriteria ORDER BY subkriteria_id");
   while ($row = $data->fetch_assoc()) { ?>
     <div class="modal fade" id="modalEdit<?= $row['subkriteria_id'] ?>" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
           <div class="modal-header bg-warning text-dark">
-            <h5 class="modal-title">Edit Data Sub-Kriteria</h5>
+            <h5 class="modal-title">Edit Sub-Kriteria</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <form method="post" action="subkriteriaEdit.php">
               <input type="hidden" name="subkriId" value="<?= $row['subkriteria_id'] ?>">
               <div class="mb-3">
-                <label class="form-label">Kode Sub-Kriteria</label>
-                <input type="text" class="form-control" name="subkriKode" value="<?= $row['subkriteria_kode'] ?>" readonly>
+                <label class="form-label">Kode</label>
+                <input type="text" class="form-control bg-light" name="subkriKode" value="<?= $row['subkriteria_kode'] ?>" readonly>
               </div>
               <div class="mb-3">
                 <label class="form-label">Kriteria</label>
@@ -237,11 +235,11 @@ include '../blade/header.php';
                 <input type="text" class="form-control" name="subkriKeterangan" value="<?= $row['subkriteria_keterangan'] ?>">
               </div>
               <div class="mb-3">
-                <label class="form-label">Bobot</label>
+                <label class="form-label">Nilai Bobot</label>
                 <input type="number" step="0.01" class="form-control" name="subkriBobot" value="<?= $row['subkriteria_bobot'] ?>">
               </div>
               <div class="text-end">
-                <button type="submit" class="btn btn-warning text-white" name="update">Update</button>
+                <button type="submit" class="btn btn-warning" name="update">Update</button>
               </div>
             </form>
           </div>
@@ -260,7 +258,7 @@ include '../blade/header.php';
     $(document).ready(function() {
       $('#tableSubKriteria').DataTable({
         pageLength: 5,
-        lengthMenu: [5, 10, 20],
+        lengthMenu: [5, 10, 25],
         language: {
           search: "Cari:",
           zeroRecords: "Tidak ada data"

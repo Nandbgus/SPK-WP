@@ -20,70 +20,65 @@ include '../blade/header.php';
       min-height: 100vh;
       font-family: 'Poppins', sans-serif;
       padding-bottom: 50px;
+      color: #333;
     }
 
     nav.navbar {
-      background: rgba(255, 255, 255, 0.9) !important;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      background: #ffffff !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       margin-bottom: 40px;
     }
 
     .main-card {
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
       border-radius: 20px;
-      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
       padding: 30px;
-      color: #fff;
+      color: #333;
     }
 
     h3 {
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      font-weight: 700;
+      color: #0d6efd;
     }
 
+    /* TABEL GELAP */
     .table {
-      color: #fff;
-      vertical-align: middle;
-      border-color: rgba(255, 255, 255, 0.3);
+      color: #333 !important;
+      border-color: #dee2e6;
     }
 
     .table thead {
-      background-color: rgba(0, 0, 0, 0.2);
-      color: #fff;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.4);
-    }
-
-    .table-hover tbody tr:hover {
-      background-color: rgba(255, 255, 255, 0.2);
+      background-color: #0d6efd;
       color: #fff;
     }
 
     .table-striped>tbody>tr:nth-of-type(odd)>* {
-      background-color: rgba(255, 255, 255, 0.05);
-      color: #fff;
+      background-color: rgba(0, 0, 0, 0.02) !important;
+      color: #333 !important;
+    }
+
+    /* Accordion Styling */
+    .accordion-button {
+      color: #333;
+      background-color: #f8f9fa;
+    }
+
+    .accordion-button:not(.collapsed) {
+      color: #0c63e4;
+      background-color: #e7f1ff;
+    }
+
+    .accordion-body {
+      background: #fff;
+      color: #333;
     }
 
     .modal-content {
       color: #333;
-    }
-
-    /* Accordion Styling for Glass */
-    .accordion-item {
-      background-color: rgba(255, 255, 255, 0.8);
       border: none;
-    }
-
-    .accordion-button {
-      background-color: rgba(255, 255, 255, 0.9);
-      color: #333;
-      font-weight: 600;
-    }
-
-    .accordion-button:not(.collapsed) {
-      background-color: #e7f1ff;
-      color: #0c63e4;
+      border-radius: 15px;
     }
   </style>
 </head>
@@ -101,37 +96,31 @@ include '../blade/header.php';
             <?php include '../blade/namaProgram.php'; ?>
           </div>
 
-          <h3 class="text-center mb-4 font-weight-bold">Data Kriteria</h3>
+          <h3 class="text-center mb-4">Data Kriteria</h3>
 
           <div class="mb-4">
-            <div class="alert alert-light bg-opacity-75 shadow-sm text-dark" role="alert">
+            <div class="alert alert-primary shadow-sm" role="alert">
               <div class="d-flex align-items-start gap-2">
-                <i class="bi bi-info-circle-fill text-primary mt-1"></i>
+                <i class="bi bi-info-circle-fill mt-1"></i>
                 <div>
                   <strong>Panduan Metode Weighted Product (WP):</strong><br>
-                  Halaman ini untuk mengelola <em>kriteria</em> penilaian. Pastikan total bobot bernilai 1.0 (jika dilakukan normalisasi manual) atau sistem akan menormalisasinya.
+                  Halaman ini untuk mengelola <em>kriteria</em>. Pastikan total bobot bernilai valid untuk perhitungan.
                 </div>
               </div>
             </div>
-            <div class="accordion shadow-sm rounded" id="panduanKriteria">
+            <div class="accordion shadow-sm" id="panduanKriteria">
               <div class="accordion-item">
                 <h2 class="accordion-header" id="headingFungsi">
                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFungsi">
-                    Fungsi & Komponen Data Kriteria
+                    Lihat Detail Fungsi & Komponen Data Kriteria
                   </button>
                 </h2>
                 <div id="collapseFungsi" class="accordion-collapse collapse" data-bs-parent="#panduanKriteria">
-                  <div class="accordion-body text-dark">
+                  <div class="accordion-body">
                     <ul>
-                      <li><strong>Kode</strong> → Identitas unik (C01, C02, dst).</li>
-                      <li><strong>Nama</strong> → Aspek penilaian (Harga, Kualitas).</li>
-                      <li><strong>Kategori</strong>:
-                        <ul>
-                          <li><em>Benefit</em> (Nilai besar lebih baik)</li>
-                          <li><em>Cost</em> (Nilai kecil lebih baik)</li>
-                        </ul>
-                      </li>
-                      <li><strong>Bobot</strong> → Tingkat kepentingan.</li>
+                      <li><strong>Kode</strong>: Identitas unik (C01, C02).</li>
+                      <li><strong>Kategori</strong>: <em>Benefit</em> (Untung) atau <em>Cost</em> (Biaya).</li>
+                      <li><strong>Bobot</strong>: Tingkat kepentingan kriteria.</li>
                     </ul>
                   </div>
                 </div>
@@ -140,18 +129,18 @@ include '../blade/header.php';
           </div>
 
           <div class="d-flex justify-content-end mb-3">
-            <button type="button" class="btn btn-light text-primary shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalAdd">
+            <button type="button" class="btn btn-primary shadow-sm fw-bold px-4" data-bs-toggle="modal" data-bs-target="#modalAdd">
               <i class="bi bi-plus-lg"></i> Tambah Kriteria
             </button>
           </div>
 
           <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle text-center">
-              <thead>
+            <table class="table table-striped table-hover align-middle text-center shadow-sm rounded overflow-hidden">
+              <thead class="bg-primary text-white">
                 <tr>
                   <th>No</th>
                   <th>Kode</th>
-                  <th>Nama</th>
+                  <th>Nama Kriteria</th>
                   <th>Kategori</th>
                   <th>Bobot</th>
                   <th>Aksi</th>
@@ -159,23 +148,23 @@ include '../blade/header.php';
               </thead>
               <tbody>
                 <?php
-                $data = $conn->query("SELECT * FROM ta_kriteria");
+                $data = $conn->query("SELECT * FROM ta_kriteria ORDER BY kriteria_id ASC");
                 $no = 1;
                 while ($kriteria = $data->fetch_assoc()) { ?>
                   <tr>
                     <td><?= $no++; ?></td>
-                    <td><span class="badge bg-info text-dark"><?= $kriteria['kriteria_kode'] ?></span></td>
+                    <td><span class="badge bg-light text-dark border"><?= $kriteria['kriteria_kode'] ?></span></td>
                     <td class="text-start ps-4 fw-bold"><?= $kriteria['kriteria_nama'] ?></td>
                     <td>
                       <?php if ($kriteria['kriteria_kategori'] == 'benefit'): ?>
-                        <span class="badge bg-success">Benefit</span>
+                        <span class="badge bg-success rounded-pill">Benefit</span>
                       <?php else: ?>
-                        <span class="badge bg-danger">Cost</span>
+                        <span class="badge bg-danger rounded-pill">Cost</span>
                       <?php endif; ?>
                     </td>
                     <td><?= $kriteria['kriteria_bobot'] ?></td>
                     <td>
-                      <button class="btn btn-warning btn-sm text-white" data-bs-toggle="modal" data-bs-target="#modalEdit<?= $kriteria['kriteria_id'] ?>"><i class="bi bi-pencil-square"></i></button>
+                      <button class="btn btn-warning btn-sm text-dark" data-bs-toggle="modal" data-bs-target="#modalEdit<?= $kriteria['kriteria_id'] ?>"><i class="bi bi-pencil-square"></i></button>
                       <a href="kriteriaDelete.php?id=<?= $kriteria['kriteria_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus data ini?')"><i class="bi bi-trash"></i></a>
                     </td>
                   </tr>
@@ -189,11 +178,11 @@ include '../blade/header.php';
   </div>
 
   <div class="modal fade" id="modalAdd" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header bg-info text-white">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg">
+        <div class="modal-header bg-primary text-white">
           <h5 class="modal-title">Tambah Data Kriteria</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form method="post" action="kriteriaAdd.php">
@@ -208,7 +197,7 @@ include '../blade/header.php';
             ?>
             <div class="mb-3">
               <label class="form-label">Kode</label>
-              <input type="text" class="form-control" name="kriKode" value="<?= $kode ?>" readonly>
+              <input type="text" class="form-control bg-light fw-bold" name="kriKode" value="<?= $kode ?>" readonly>
             </div>
             <div class="mb-3">
               <label class="form-label">Nama Kriteria</label>
@@ -217,13 +206,14 @@ include '../blade/header.php';
             <div class="mb-3">
               <label class="form-label">Kategori</label>
               <select class="form-select" name="kriKategori" required>
-                <option value="benefit">Benefit</option>
-                <option value="cost">Cost</option>
+                <option value="benefit">Benefit (Semakin Besar Semakin Baik)</option>
+                <option value="cost">Cost (Semakin Kecil Semakin Baik)</option>
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label">Bobot</label>
-              <input type="number" step="0.01" class="form-control" name="kriBobot" required>
+              <label class="form-label">Bobot (Prioritas)</label>
+              <input type="number" step="0.01" class="form-control" name="kriBobot" placeholder="Contoh: 1, 2, 3..." required>
+              <small class="text-muted">Untuk metode ROC, masukkan urutan prioritas (1 = Terpenting).</small>
             </div>
             <div class="text-end">
               <button type="submit" class="btn btn-primary" name="save">Simpan</button>
@@ -238,8 +228,8 @@ include '../blade/header.php';
   $data = $conn->query("SELECT * FROM ta_kriteria ORDER BY kriteria_id");
   while ($kriteria = $data->fetch_assoc()) { ?>
     <div class="modal fade" id="modalEdit<?= $kriteria['kriteria_id'] ?>" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
           <div class="modal-header bg-warning text-dark">
             <h5 class="modal-title">Edit Data Kriteria</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -249,7 +239,7 @@ include '../blade/header.php';
               <input type="hidden" name="kriId" value="<?= $kriteria['kriteria_id'] ?>">
               <div class="mb-3">
                 <label class="form-label">Kode</label>
-                <input type="text" class="form-control" name="kriKode" value="<?= $kriteria['kriteria_kode'] ?>" readonly>
+                <input type="text" class="form-control bg-light" name="kriKode" value="<?= $kriteria['kriteria_kode'] ?>" readonly>
               </div>
               <div class="mb-3">
                 <label class="form-label">Nama</label>
@@ -267,7 +257,7 @@ include '../blade/header.php';
                 <input type="number" step="0.01" class="form-control" name="kriBobot" value="<?= $kriteria['kriteria_bobot'] ?>" required>
               </div>
               <div class="text-end">
-                <button type="submit" class="btn btn-warning text-white" name="update">Update</button>
+                <button type="submit" class="btn btn-warning" name="update">Update</button>
               </div>
             </form>
           </div>

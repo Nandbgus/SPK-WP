@@ -22,60 +22,58 @@ include '../blade/header.php';
       min-height: 100vh;
       font-family: 'Poppins', sans-serif;
       padding-bottom: 50px;
+      color: #333;
     }
 
     nav.navbar {
-      background: rgba(255, 255, 255, 0.9) !important;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      background: #ffffff !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       margin-bottom: 40px;
     }
 
     .main-card {
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.85);
+      /* Putih Susu */
+      backdrop-filter: blur(20px);
       border-radius: 20px;
-      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
       padding: 30px;
-      color: #fff;
+      color: #333;
     }
 
     h3 {
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      font-weight: 700;
+      color: #0d6efd;
     }
 
+    /* TABEL */
     .table {
-      color: #fff !important;
-      vertical-align: middle;
-      border-color: rgba(255, 255, 255, 0.3);
+      color: #333 !important;
+      border-color: #dee2e6;
     }
 
     .table thead {
-      background-color: rgba(0, 0, 0, 0.2);
-      color: #fff;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.4);
-    }
-
-    .table-hover tbody tr:hover {
-      background-color: rgba(255, 255, 255, 0.2) !important;
+      background-color: #0d6efd;
       color: #fff;
     }
 
     .table-striped>tbody>tr:nth-of-type(odd)>* {
-      background-color: rgba(255, 255, 255, 0.05) !important;
-      color: #fff !important;
+      background-color: rgba(0, 0, 0, 0.02) !important;
+      color: #333 !important;
     }
 
+    /* DATA TABLES OVERRIDE */
     .dataTables_wrapper .dataTables_length,
     .dataTables_wrapper .dataTables_filter,
     .dataTables_wrapper .dataTables_info,
     .dataTables_wrapper .dataTables_paginate {
-      color: #fff !important;
+      color: #333 !important;
     }
 
     .modal-content {
       color: #333;
+      border: none;
+      border-radius: 15px;
     }
   </style>
 </head>
@@ -93,17 +91,17 @@ include '../blade/header.php';
             <?php include '../blade/namaProgram.php'; ?>
           </div>
 
-          <h3 class="text-center mb-4 font-weight-bold">Data Nilai Faktor</h3>
+          <h3 class="text-center mb-4">Data Nilai Faktor (Input Nilai)</h3>
 
           <div class="d-flex justify-content-end mb-3">
-            <button class="btn btn-light text-primary shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalAdd">
-              <i class="bi bi-plus-lg"></i> Tambah Nilai Faktor
+            <button class="btn btn-primary shadow-sm fw-bold px-4" data-bs-toggle="modal" data-bs-target="#modalAdd">
+              <i class="bi bi-plus-lg"></i> Input Nilai Baru
             </button>
           </div>
 
           <div class="table-responsive">
-            <table id="tableFaktor" class="table table-striped table-hover text-center" style="width:100%">
-              <thead>
+            <table id="tableFaktor" class="table table-striped table-hover text-center align-middle shadow-sm" style="width:100%">
+              <thead class="bg-primary text-white">
                 <tr>
                   <th>No</th>
                   <th>Alternatif</th>
@@ -135,7 +133,7 @@ include '../blade/header.php';
                   }
 
                   echo "<td>
-                                        <button class='btn btn-warning btn-sm text-white' data-bs-toggle='modal' data-bs-target='#modalEdit{$a['alternatif_kode']}'><i class='bi bi-pencil-square'></i></button>
+                                        <button class='btn btn-warning btn-sm text-dark' data-bs-toggle='modal' data-bs-target='#modalEdit{$a['alternatif_kode']}'><i class='bi bi-pencil-square'></i></button>
                                         <a href='faktorDelete.php?id={$a['alternatif_kode']}' class='btn btn-danger btn-sm' onclick=\"return confirm('Hapus data ini?')\"><i class='bi bi-trash'></i></a>
                                     </td>";
                   echo "</tr>";
