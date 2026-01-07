@@ -8,39 +8,14 @@ include '../blade/header.php';
 // 1. FUNGSI & LOGIC ROC (Rank Order Centroid)
 // ==========================================
 
-function getBobotROC($totalKriteria)
-{
-    $bobotROC = [];
-    // Loop untuk setiap ranking (k)
-    for ($k = 1; $k <= $totalKriteria; $k++) {
-        $sum = 0;
-        // Rumus ROC: Penjumlahan pecahan harmoni
-        for ($i = $k; $i <= $totalKriteria; $i++) {
-            $sum += (1 / $i);
-        }
-        // Hasil dibagi total kriteria
-        $bobotROC[$k] = $sum / $totalKriteria;
-    }
-    return $bobotROC;
-}
-
-// Ambil data kriteria dari database
-// PERBAIKAN: Diurutkan berdasarkan 'kriteria_bobot' (Ranking) ASC
-$q_kriteria = $conn->query("SELECT * FROM ta_kriteria ORDER BY kriteria_bobot ASC");
+$q_kriteria = $conn->query(
+  "SELECT * FROM ta_kriteria ORDER BY kriteria_bobot ASC"
+);
 
 $data_kriteria = [];
 while ($row = $q_kriteria->fetch_assoc()) {
+    $row['bobot_roc'] = $row['kriteria_bobot_ROC'];
     $data_kriteria[] = $row;
-}
-
-// Hitung Bobot ROC
-$jumlahKriteria = count($data_kriteria);
-$nilaiROC = getBobotROC($jumlahKriteria);
-
-// Masukkan Nilai ROC ke dalam Array Kriteria
-foreach ($data_kriteria as $index => $kriteria) {
-    $urutan = $index + 1;
-    $data_kriteria[$index]['bobot_roc'] = $nilaiROC[$urutan];
 }
 ?>
 
