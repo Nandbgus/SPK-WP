@@ -123,6 +123,7 @@ include '../blade/header.php';
                   <th>Kode</th>
                   <th>Nama Kriteria</th>
                   <th>Kategori</th>
+                  <th>Bobot ROC</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
@@ -147,6 +148,9 @@ include '../blade/header.php';
                       <?php else: ?>
                         <span class="badge bg-danger bg-opacity-75 rounded-pill">Cost</span>
                       <?php endif; ?>
+                    </td>
+                    <td class="fw-bold text-primary">
+                      <?= number_format($kriteria['kriteria_bobot_ROC'], 4); ?>
                     </td>
                     <td>
                       <button class="btn btn-warning btn-sm text-dark" data-bs-toggle="modal" data-bs-target="#modalEdit<?= $kriteria['kriteria_id'] ?>"><i class="bi bi-pencil-square"></i></button>
